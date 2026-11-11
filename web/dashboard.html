@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>sokovia</title>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <link rel="apple-touch-icon" href="/icon.png"/>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card-bg: #ffffff;
+      --card-hover: #f0f0f2;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-light: rgba(0, 0, 0, 0.12);
+      --ink: #000000;
+      --ink-2: #6e6e73;
+      --ink-3: #86868b;
+      --accent: #0071e3;
+      --saving: #18703a;
+      --danger: #d70015;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", -apple-system, sans-serif;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Brand Center Logo */
+    header {
+      padding: 24px 0 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: var(--bg);
+    }
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: #000000;
+      font-weight: 700;
+      font-size: 19px;
+      letter-spacing: -0.02em;
+    }
+    .brand-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+    .brand-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Main Container */
+    .app-wrap {
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 18px 120px;
+      flex: 1;
+    }
+
+    /* Helumi Top Profile & Meter Card */
+    .profile-card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border);
+    }
+
+    /* Device Unlock / Pairing Card (Helumi Style) */
+    .unlock-card {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 44px 32px;
+      text-align: center;
+      margin-bottom: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      display: none;
+    }
+    .unlock-icon-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.05);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .unlock-title {
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+    .unlock-sub {
+      font-size: 13px;
+      color: var(--ink-2);
+      max-width: 360px;
+      margin: 0 auto 28px;
+      line-height: 1.5;
+    }
+    .pairing-code-display {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Mono", monospace;
+      color: #000000;
+      margin-bottom: 24px;
+    }
+    .pairing-waiting-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink-2);
+      font-size: 12.5px;
+      margin-bottom: 28px;
+    }
+    .spinner-dot {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(0, 0, 0, 0.15);
+      border-top-color: #000000;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .unlock-footer-link {
+      color: var(--ink-2);
+      font-size: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .unlock-footer-link:hover {
+      color: #000000;
+    }
+    .profile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .user-info-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .avatar-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #e5e5ea;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #000000;
+    }
+    .user-text-meta h2 {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 2px;
+      color: var(--ink);
+    }
+    .user-text-meta p {
+      font-size: 13px;
+      color: var(--ink-2);
+    }
+    .btn-add-files {
+      background: #000000;
+      color: #ffffff;
+      height: 36px;
+      padding: 0 16px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .btn-add-files:hover { opacity: 0.85; }
+
+    /* Storage Progress Bar */
+    .storage-meter-row {
+      margin-top: 10px;
+    }
+    .storage-bar-track {
+      height: 4px;
+      background: rgba(0, 0, 0, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .storage-bar-fill {
+      height: 100%;
+      background: #000000;
+      border-radius: 999px;
+      width: 1%;
+      transition: width 0.3s;
+    }
+    .storage-meta-labels {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 13px;
+    }
+    .storage-meta-labels b { font-weight: 600; color: #000000; }
+    .storage-meta-labels span { color: var(--ink-2); }
+
+    /* Section Subheadings */
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      color: var(--ink-2);
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .section-head a {
+      color: var(--ink-2);
+      text-decoration: none;
+    }
+    .section-head a:hover { color: #000000; }
+
+    /* Folders Grid */
+    .folders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 34px;
+    }
+    .folder-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 16px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .folder-card:hover { background: var(--card-hover); }
+    .folder-icon {
+      font-size: 26px;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .folder-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #000000;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .folder-sub {
+      font-size: 11px;
+      color: var(--ink-3);
+    }
+
+    /* Files List Items (Helumi Style) */
+    .files-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 40px;
+    }
+    .file-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 12px;
+      transition: background 0.15s;
+      cursor: pointer;
+    }
+    .file-row:hover { background: rgba(0, 0, 0, 0.04); }
+    .file-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+    .file-badge-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #e9e9eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex: none;
+    }
+    .file-text-col {
+      min-width: 0;
+    }
+    .file-title {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #000000;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file-subpath {
+      font-size: 11.5px;
+      color: var(--ink-3);
+      margin-top: 1px;
+    }
+    .file-aside {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 12px;
+      color: var(--ink-2);
+      font-variant-numeric: tabular-nums;
+      flex: none;
+    }
+    .file-delete-btn {
+      background: none;
+      border: none;
+      color: var(--ink-3);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+      border-radius: 4px;
+      display: none;
+    }
+    .file-row:hover .file-delete-btn { display: block; }
+    .file-delete-btn:hover { color: var(--danger); }
+
+    /* Empty state */
+    .empty-state {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--ink-2);
+      border: 1px solid var(--border);
+    }
+    .empty-state h3 { color: #000000; font-size: 15px; margin-bottom: 6px; }
+
+    /* Helumi Bottom Floating Navigation Bar */
+    .bottom-dock-wrap {
+      position: fixed;
+      bottom: 24px;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .bottom-dock {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid var(--border-light);
+      border-radius: 999px;
+      padding: 5px 8px;
+      display: flex;
+      gap: 4px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    }
+    .dock-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 58px;
+      height: 48px;
+      border-radius: 999px;
+      background: none;
+      border: none;
+      color: var(--ink-2);
+      font-size: 10px;
+      font-weight: 500;
+      gap: 3px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .dock-btn svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+    .dock-btn.active {
+      color: #000000;
+    }
+    .dock-btn.active::after {
+      content: "";
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #000000;
+      margin-top: -1px;
+    }
+    .dock-avatar {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e5e5ea;
+      color: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    /* Views Switcher */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Account / Settings Tab Card */
+    .settings-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+    .settings-card-title {
+      font-size: 12px;
+      color: var(--ink-2);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 14px;
+      letter-spacing: 0.04em;
+    }
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+    }
+    .settings-row + .settings-row {
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+    }
+    .settings-row-text h4 {
+      font-size: 14px;
+      font-weight: 500;
+      color: #000000;
+    }
+    .settings-row-text p {
+      font-size: 12px;
+      color: var(--ink-2);
+      margin-top: 2px;
+    }
+    .btn-pill-sm {
+      background: rgba(0, 0, 0, 0.06);
+      border: none;
+      color: #000000;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-pill-sm:hover { background: rgba(0, 0, 0, 0.12); }
+    .connected-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--saving);
+    }
+    .connected-dot::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--saving);
+    }
+
+    /* Hidden File Input for Upload */
+    #fileInput { display: none; }
+
+    /* Modern Helumi Shimmer Skeleton Styles */
+    @keyframes skeleton-shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .skeleton-box {
+      background: linear-gradient(90deg, #ececed 25%, #f7f7f8 50%, #ececed 75%);
+      background-size: 200% 100%;
+      animation: skeleton-shimmer 1.5s infinite ease-in-out;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    .skeleton-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+    }
+    .skeleton-line {
+      height: 12px;
+      border-radius: 6px;
+    }
+    .skeleton-file-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 12px;
+    }
+  </style>
+  <!-- Compiled TypeScript Application Bundle -->
+  <script src="/dist/dashboard.js" defer></script>
+</head>
+<body>
+
+  <!-- Top Centered Brand -->
+  <header>
+    <a href="/dashboard" class="brand-logo">
+      <div class="brand-icon"><img src="/favicon.png" alt="Sokovia"/></div>
+      <span>sokovia</span>
+    </a>
+  </header>
+
+  <main class="app-wrap">
+    
+    <!-- ================= TAB 1: HOME ================= -->
+    <div id="viewHome" class="tab-content active">
+
+      <!-- Unlock / Device Pairing Card (Matching Helumi Unlock screen) -->
+      <div class="unlock-card" id="deviceUnlockCard">
+        <div class="unlock-icon-circle">🔒</div>
+        <h2 class="unlock-title">unlock your files on this browser</h2>
+        <p class="unlock-sub">open sokovia on your mac and click allow. check that the numbers match.</p>
+        <div class="pairing-code-display" id="pairingCodeValue">988 932</div>
+        <div class="pairing-waiting-pill">
+          <div class="spinner-dot"></div>
+          <span>waiting for your mac...</span>
+        </div>
+        <div>
+          <a class="unlock-footer-link" onclick="dismissUnlockScreen()">use recovery key instead</a>
+        </div>
+      </div>
+
+      <!-- Profile & Storage Card (Exact Helumi Style) -->
+      <div class="profile-card" id="mainProfileCard">
+        <div class="profile-header">
+          <div class="user-info-group">
+            <div class="avatar-circle" id="userAvatarLetter">
+              <div class="skeleton-box skeleton-avatar" id="avatarSkeleton"></div>
+            </div>
+            <div class="user-text-meta">
+              <h2 id="greetingTitle"><span class="skeleton-box skeleton-line" style="width: 170px; height: 18px;"></span></h2>
+              <p id="statsCountsSub"><span class="skeleton-box skeleton-line" style="width: 110px; height: 12px; margin-top: 4px;"></span></p>
+            </div>
+          </div>
+          <button class="btn-add-files" onclick="document.getElementById('fileInput').click()">
+            + add files
+          </button>
+        </div>
+
+        <div class="storage-meter-row">
+          <div class="storage-bar-track">
+            <div class="storage-bar-fill" id="storageBarFill"></div>
+          </div>
+          <div class="storage-meta-labels">
+            <div>
+              <b id="storageUsedText"><span class="skeleton-box skeleton-line" style="width: 40px; height: 12px;"></span></b>
+              <span>of 5 GB used</span>
+            </div>
+            <span id="storageFreeText"><span class="skeleton-box skeleton-line" style="width: 75px; height: 12px;"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Folders Section -->
+      <div id="foldersSection" style="display: none; margin-bottom: 34px;">
+        <div class="section-head">
+          <span>folders</span>
+          <a href="javascript:void(0)" onclick="switchDock('files')">all files</a>
+        </div>
+        <div class="folders-grid" id="foldersGrid"></div>
+      </div>
+
+      <!-- Recent Files Section -->
+      <div class="section-head">
+        <span>files</span>
+        <span id="syncStatusTag" style="color: var(--saving);">✓ Synced</span>
+      </div>
+      <div class="files-list" id="homeFilesList">
+        <!-- Helumi Skeleton Loader for Files -->
+        <div class="skeleton-file-row">
+          <div class="file-main">
+            <div class="skeleton-box" style="width: 32px; height: 32px; border-radius: 8px;"></div>
+            <div class="file-text-col" style="flex: 1;">
+              <div class="skeleton-box skeleton-line" style="width: 160px; height: 14px; margin-bottom: 6px;"></div>
+              <div class="skeleton-box skeleton-line" style="width: 90px; height: 10px;"></div>
+            </div>
+          </div>
+          <div class="skeleton-box skeleton-line" style="width: 48px; height: 12px;"></div>
+        </div>
+        <div class="skeleton-file-row">
+          <div class="file-main">
+            <div class="skeleton-box" style="width: 32px; height: 32px; border-radius: 8px;"></div>
+            <div class="file-text-col" style="flex: 1;">
+              <div class="skeleton-box skeleton-line" style="width: 210px; height: 14px; margin-bottom: 6px;"></div>
+              <div class="skeleton-box skeleton-line" style="width: 110px; height: 10px;"></div>
+            </div>
+          </div>
+          <div class="skeleton-box skeleton-line" style="width: 54px; height: 12px;"></div>
+        </div>
+        <div class="skeleton-file-row">
+          <div class="file-main">
+            <div class="skeleton-box" style="width: 32px; height: 32px; border-radius: 8px;"></div>
+            <div class="file-text-col" style="flex: 1;">
+              <div class="skeleton-box skeleton-line" style="width: 140px; height: 14px; margin-bottom: 6px;"></div>
+              <div class="skeleton-box skeleton-line" style="width: 80px; height: 10px;"></div>
+            </div>
+          </div>
+          <div class="skeleton-box skeleton-line" style="width: 42px; height: 12px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB 2: FILES ================= -->
+    <div id="viewFiles" class="tab-content">
+      <div class="section-head" style="margin-top: 10px;">
+        <span style="font-size: 16px; font-weight: 600; color: #000;">all files</span>
+        <button class="btn-add-files" onclick="document.getElementById('fileInput').click()" style="height: 32px; font-size: 12.5px;">
+          + add files
+        </button>
+      </div>
+      <div class="files-list" id="allFilesList" style="margin-top: 14px;">
+        <div class="skeleton-file-row">
+          <div class="file-main">
+            <div class="skeleton-box" style="width: 32px; height: 32px; border-radius: 8px;"></div>
+            <div class="file-text-col" style="flex: 1;">
+              <div class="skeleton-box skeleton-line" style="width: 180px; height: 14px; margin-bottom: 6px;"></div>
+              <div class="skeleton-box skeleton-line" style="width: 100px; height: 10px;"></div>
+            </div>
+          </div>
+          <div class="skeleton-box skeleton-line" style="width: 45px; height: 12px;"></div>
+        </div>
+        <div class="skeleton-file-row">
+          <div class="file-main">
+            <div class="skeleton-box" style="width: 32px; height: 32px; border-radius: 8px;"></div>
+            <div class="file-text-col" style="flex: 1;">
+              <div class="skeleton-box skeleton-line" style="width: 130px; height: 14px; margin-bottom: 6px;"></div>
+              <div class="skeleton-box skeleton-line" style="width: 85px; height: 10px;"></div>
+            </div>
+          </div>
+          <div class="skeleton-box skeleton-line" style="width: 50px; height: 12px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= TAB 3: SHARED ================= -->
+    <div id="viewShared" class="tab-content">
+      <div style="padding: 10px 0 20px;">
+        <h2 style="font-size: 16px; margin-bottom: 4px; color: #000;">shared</h2>
+        <p style="font-size: 12.5px; color: var(--ink-2);">links you've shared, and folders people can upload to.</p>
+      </div>
+
+      <div class="profile-card" style="text-align: center; padding: 48px 24px;">
+        <div style="font-size: 32px; margin-bottom: 12px;">🔗</div>
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 6px; color: #000;">no share links yet</h3>
+        <p style="font-size: 13px; color: var(--ink-2); max-width: 380px; margin: 0 auto;">
+          links you create in finder or right here show up here, with how many times each was opened.
+        </p>
+      </div>
+    </div>
+
+    <!-- ================= TAB 4: PLAN ================= -->
+    <div id="viewPlan" class="tab-content">
+      <div style="padding: 10px 0 20px;">
+        <h2 style="font-size: 16px; margin-bottom: 4px; color: #000;">plan</h2>
+        <p style="font-size: 12.5px; color: var(--ink-2);">pay only for the space you need. change or cancel any time.</p>
+      </div>
+
+      <div class="profile-card" style="padding: 32px;">
+        <div style="font-size: 13px; color: var(--ink-2); margin-bottom: 6px;">your current space</div>
+        <div style="font-size: 32px; font-weight: 700; color: #000; margin-bottom: 16px;">
+          $0 <span style="font-size: 15px; color: var(--ink-2); font-weight: 400;">/ month for <b>10 GB free</b></span>
+        </div>
+        <div style="font-size: 13px; color: var(--saving); margin-bottom: 24px;">
+          ✓ Powered by Cloudflare R2 zero-egress bandwidth
+        </div>
+
+        <ul style="list-style: none; font-size: 13.5px; color: var(--ink-2); line-height: 2;">
+          <li>✓ files take zero bytes on your mac and open instantly</li>
+          <li>✓ isolated private bucket dedicated solely to your account</li>
+          <li>✓ stream seamlessly into Final Cut, DaVinci, and Premiere</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ================= TAB 5: ACCOUNT ================= -->
+    <div id="viewAccount" class="tab-content">
+      <div style="padding: 10px 0 16px;">
+        <h2 style="font-size: 16px; margin-bottom: 2px; color: #000;">account</h2>
+      </div>
+
+      <div class="settings-card">
+        <div class="user-info-group">
+          <div class="avatar-circle" id="settingsAvatarLetter">
+            <div class="skeleton-box skeleton-avatar" style="width: 48px; height: 48px;"></div>
+          </div>
+          <div class="user-text-meta">
+            <h2 id="settingsUserName"><span class="skeleton-box skeleton-line" style="width: 140px; height: 16px;"></span></h2>
+            <p id="settingsUserEmail"><span class="skeleton-box skeleton-line" style="width: 180px; height: 12px; margin-top: 4px;"></span></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-card-title">macs connected</div>
+        <div class="settings-row">
+          <div class="settings-row-text">
+            <h4>HemanthMacBook</h4>
+            <p><span class="connected-dot">connected now</span></p>
+          </div>
+          <a href="/downloads/Sokovia-macOS.zip" download class="btn-pill-sm">download client</a>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-card-title">security & encryption</div>
+        <div class="settings-row">
+          <div class="settings-row-text">
+            <h4>end-to-end encryption</h4>
+            <p>AES-GCM-256 local client encryption enabled</p>
+          </div>
+          <span style="font-size: 12px; color: var(--saving); font-weight: 600;">on</span>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-text">
+            <h4>dedicated bucket</h4>
+            <p id="settingsBucketName">sokovia-user-...</p>
+          </div>
+          <span style="font-size: 12px; color: var(--saving); font-weight: 600;">active</span>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-row">
+          <div class="settings-row-text">
+            <h4>sign out of this browser</h4>
+            <p>your mac drive stays mounted</p>
+          </div>
+          <button class="btn-pill-sm" onclick="handleSignOut()">sign out</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden Upload Input -->
+    <input type="file" id="fileInput" onchange="handleFileUpload(event)" multiple/>
+  </main>
+
+  <!-- ================= HELUMI BOTTOM DOCK NAVIGATION ================= -->
+  <div class="bottom-dock-wrap">
+    <nav class="bottom-dock">
+      <button class="dock-btn active" id="dockBtnHome" onclick="switchDock('home')">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>home</span>
+      </button>
+
+      <button class="dock-btn" id="dockBtnFiles" onclick="switchDock('files')">
+        <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        <span>files</span>
+      </button>
+
+      <button class="dock-btn" id="dockBtnShared" onclick="switchDock('shared')">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>shared</span>
+      </button>
+
+      <button class="dock-btn" id="dockBtnPlan" onclick="switchDock('plan')">
+        <svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+        <span>plan</span>
+      </button>
+
+      <button class="dock-btn" id="dockBtnAccount" onclick="switchDock('account')">
+        <div class="dock-avatar" id="dockAvatarLetter">H</div>
+        <span>account</span>
+      </button>
+    </nav>
+  </div>
+
+</body>
+</html>

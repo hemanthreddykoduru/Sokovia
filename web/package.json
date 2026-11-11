@@ -1,0 +1,19 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild src/index.ts src/dashboard.ts --bundle --outdir=dist --format=iife --external:crypto --minify && mkdir -p dashboard && cp dashboard.html dashboard/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@insforge/sdk": "^1.5.2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

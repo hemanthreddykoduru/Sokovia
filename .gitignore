@@ -1,0 +1,36 @@
+.DS_Store
+.build/
+Packages/
+xcuserdata/
+DerivedData/
+.swiftpm/configuration/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc
+
+# Binaries & builds
+main
+Helumi
+Sokovia.app/
+
+# Node modules
+node_modules/
+web/node_modules/
+
+# Environment and local configs
+.env*
+!.env.example
+
+# InsForge CLI & Agent metadata
+.insforge/
+.agent/
+.agents/
+.augment/
+.claude/
+.cline/
+.github/copilot*
+.kilocode/
+.qoder/
+.qwen/
+.roo/
+.trae/
+.windsurf/
