@@ -95,9 +95,18 @@ public final class WebDAVServer: @unchecked Sendable {
                     }
                 }
 
+                let isChunked = headers["transfer-encoding"]?.lowercased().contains("chunked") ?? false
                 let contentLength = Int(headers["content-length"] ?? "0") ?? 0
 
-                if bodyData.count < contentLength {
+                if isChunked {
+                    if let decoded = WebDAVServer.decodeChunkedData(bodyData) {
+                        Task {
+                            await self.processRequest(connection: connection, method: method, path: decodedPath, headers: headers, body: decoded)
+                        }
+                    } else {
+                        self.readRemainingChunkedBody(connection: connection, method: method, path: decodedPath, headers: headers, accumulatedBody: bodyData)
+                    }
+                } else if bodyData.count < contentLength {
                     self.readRemainingBody(connection: connection, method: method, path: decodedPath, headers: headers, accumulatedBody: bodyData, expectedLength: contentLength)
                 } else {
                     Task {
@@ -108,6 +117,29 @@ public final class WebDAVServer: @unchecked Sendable {
                 self.readData(connection: connection, accumulated: buffer)
             } else {
                 connection.cancel()
+            }
+        }
+    }
+
+    private func readRemainingChunkedBody(connection: NWConnection, method: String, path: String, headers: [String: String], accumulatedBody: Data) {
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 65536) { [weak self] data, context, isComplete, error in
+            guard let self = self else { return }
+            var body = accumulatedBody
+            if let data = data, !data.isEmpty {
+                body.append(data)
+            }
+
+            if let decoded = WebDAVServer.decodeChunkedData(body) {
+                Task {
+                    await self.processRequest(connection: connection, method: method, path: path, headers: headers, body: decoded)
+                }
+            } else if isComplete || error != nil {
+                let decoded = WebDAVServer.decodeChunkedData(body) ?? body
+                Task {
+                    await self.processRequest(connection: connection, method: method, path: path, headers: headers, body: decoded)
+                }
+            } else {
+                self.readRemainingChunkedBody(connection: connection, method: method, path: path, headers: headers, accumulatedBody: body)
             }
         }
     }
@@ -322,7 +354,11 @@ public final class WebDAVServer: @unchecked Sendable {
             let range = headers["range"]
 
             // Check if full file is in local disk cache and no range requested
-            if range == nil, let cachedData = await diskCache.getCachedFile(for: cleanPath) {
+            if range == nil, var cachedData = await diskCache.getCachedFile(for: cleanPath) {
+                if let decoded = WebDAVServer.decodeChunkedData(cachedData), !decoded.isEmpty {
+                    cachedData = decoded
+                    await diskCache.saveCachedFile(for: cleanPath, data: decoded)
+                }
                 let mimeType = r2Client.mimeType(for: cleanPath)
                 let respHeaders = [
                     "Content-Type": mimeType,
@@ -333,7 +369,37 @@ public final class WebDAVServer: @unchecked Sendable {
                 return
             }
 
-            let (data, fullSize, mimeType, isPartial) = try await r2Client.getObject(key: cleanPath, rangeHeader: range)
+            // If range requested and full file is in local disk cache, serve slice immediately
+            if let range = range, var cachedData = await diskCache.getCachedFile(for: cleanPath) {
+                if let decoded = WebDAVServer.decodeChunkedData(cachedData), !decoded.isEmpty {
+                    cachedData = decoded
+                    await diskCache.saveCachedFile(for: cleanPath, data: decoded)
+                }
+                if let (start, end) = WebDAVServer.parseByteRange(range, totalSize: cachedData.count) {
+                    let slice = cachedData.subdata(in: start..<(end + 1))
+                    let mimeType = r2Client.mimeType(for: cleanPath)
+                    let respHeaders = [
+                        "Content-Type": mimeType,
+                        "Content-Length": String(slice.count),
+                        "Content-Range": "bytes \(start)-\(end)/\(cachedData.count)",
+                        "Accept-Ranges": "bytes"
+                    ]
+                    sendResponse(connection: connection, status: "206 Partial Content", headers: respHeaders, body: isHead ? Data() : slice)
+                    return
+                }
+            }
+
+            var (data, fullSize, mimeType, isPartial) = try await r2Client.getObject(key: cleanPath, rangeHeader: range)
+
+            // Auto-heal chunked payloads if detected
+            if !isPartial, range == nil, let decoded = WebDAVServer.decodeChunkedData(data), !decoded.isEmpty {
+                data = decoded
+                fullSize = Int64(decoded.count)
+                Task {
+                    try? await self.r2Client.putObject(key: cleanPath, data: decoded, contentType: mimeType)
+                    await self.diskCache.saveCachedFile(for: cleanPath, data: decoded)
+                }
+            }
 
             // Cache full file downloads to local disk cache
             if !isPartial && range == nil {
@@ -347,7 +413,8 @@ public final class WebDAVServer: @unchecked Sendable {
             ]
             let status = isPartial ? "206 Partial Content" : "200 OK"
             if isPartial, let range = range {
-                respHeaders["Content-Range"] = "\(range)/\(fullSize)"
+                let cleanRange = range.replacingOccurrences(of: "bytes=", with: "bytes ")
+                respHeaders["Content-Range"] = "\(cleanRange)/\(fullSize)"
             }
 
             sendResponse(connection: connection, status: status, headers: respHeaders, body: isHead ? Data() : data)
@@ -358,12 +425,86 @@ public final class WebDAVServer: @unchecked Sendable {
 
     private func handlePut(connection: NWConnection, cleanPath: String, body: Data) async {
         do {
-            try await r2Client.putObject(key: cleanPath, data: body)
+            var payload = body
+            if let decoded = WebDAVServer.decodeChunkedData(body), !decoded.isEmpty {
+                payload = decoded
+            }
+            try await r2Client.putObject(key: cleanPath, data: payload)
+            await diskCache.saveCachedFile(for: cleanPath, data: payload)
             await diskCache.invalidateListing()
             sendResponse(connection: connection, status: "201 Created", headers: [:], body: Data())
         } catch {
             sendResponse(connection: connection, status: "500 Internal Server Error", headers: [:], body: Data())
         }
+    }
+
+    // MARK: - Chunked Encoding & Range Helpers
+
+    public static func decodeChunkedData(_ data: Data) -> Data? {
+        var output = Data()
+        var offset = 0
+        let crlf = Data("\r\n".utf8)
+
+        while offset < data.count {
+            guard let lineEndRange = data.range(of: crlf, options: [], in: offset..<data.count) else {
+                return nil
+            }
+
+            let lineData = data.subdata(in: offset..<lineEndRange.lowerBound)
+            guard let lineStr = String(data: lineData, encoding: .utf8)?.trimmingCharacters(in: .whitespaces) else {
+                return nil
+            }
+
+            let sizeStr = lineStr.split(separator: ";").first.map(String.init) ?? lineStr
+            guard let chunkSize = Int(sizeStr.trimmingCharacters(in: .whitespaces), radix: 16) else {
+                return nil
+            }
+
+            if chunkSize == 0 {
+                return output
+            }
+
+            let chunkDataStart = lineEndRange.upperBound
+            let chunkDataEnd = chunkDataStart + chunkSize
+
+            guard chunkDataEnd <= data.count else {
+                return nil
+            }
+
+            output.append(data.subdata(in: chunkDataStart..<chunkDataEnd))
+
+            let nextOffset = chunkDataEnd
+            if nextOffset + 2 <= data.count && data.subdata(in: nextOffset..<nextOffset + 2) == crlf {
+                offset = nextOffset + 2
+            } else {
+                offset = nextOffset
+            }
+        }
+
+        return output.isEmpty ? nil : output
+    }
+
+    public static func parseByteRange(_ header: String, totalSize: Int) -> (start: Int, end: Int)? {
+        guard totalSize > 0, header.hasPrefix("bytes=") else { return nil }
+        let spec = String(header.dropFirst(6)).trimmingCharacters(in: .whitespaces)
+        let parts = spec.split(separator: "-", omittingEmptySubsequences: false).map(String.init)
+        guard parts.count == 2 else { return nil }
+
+        if parts[0].isEmpty, let suffixLen = Int(parts[1]) {
+            let start = max(0, totalSize - suffixLen)
+            let end = totalSize - 1
+            return (start, end)
+        } else if let start = Int(parts[0]) {
+            if parts[1].isEmpty {
+                let end = totalSize - 1
+                guard start <= end else { return nil }
+                return (start, end)
+            } else if let end = Int(parts[1]) {
+                guard start <= end, start < totalSize else { return nil }
+                return (start, min(end, totalSize - 1))
+            }
+        }
+        return nil
     }
 
     private func handleMkcol(connection: NWConnection, cleanPath: String) async {
