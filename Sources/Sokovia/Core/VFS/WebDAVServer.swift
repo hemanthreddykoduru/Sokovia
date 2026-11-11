@@ -95,11 +95,16 @@ public final class WebDAVServer: @unchecked Sendable {
                     }
                 }
 
+                if let expect = headers["expect"], expect.lowercased().contains("100-continue") {
+                    let continueData = Data("HTTP/1.1 100 Continue\r\n\r\n".utf8)
+                    connection.send(content: continueData, completion: .contentProcessed({ _ in }))
+                }
+
                 let isChunked = headers["transfer-encoding"]?.lowercased().contains("chunked") ?? false
                 let contentLength = Int(headers["content-length"] ?? "0") ?? 0
 
                 if isChunked {
-                    if let decoded = WebDAVServer.decodeChunkedData(bodyData) {
+                    if let decoded = WebDAVServer.decodeChunkedData(bodyData, allowIncomplete: false) {
                         Task {
                             await self.processRequest(connection: connection, method: method, path: decodedPath, headers: headers, body: decoded)
                         }
@@ -129,12 +134,12 @@ public final class WebDAVServer: @unchecked Sendable {
                 body.append(data)
             }
 
-            if let decoded = WebDAVServer.decodeChunkedData(body) {
+            if let decoded = WebDAVServer.decodeChunkedData(body, allowIncomplete: false) {
                 Task {
                     await self.processRequest(connection: connection, method: method, path: path, headers: headers, body: decoded)
                 }
             } else if isComplete || error != nil {
-                let decoded = WebDAVServer.decodeChunkedData(body) ?? body
+                let decoded = WebDAVServer.decodeChunkedData(body, allowIncomplete: true) ?? body
                 Task {
                     await self.processRequest(connection: connection, method: method, path: path, headers: headers, body: decoded)
                 }
@@ -223,7 +228,9 @@ public final class WebDAVServer: @unchecked Sendable {
                 </D:lockdiscovery>
             </D:prop>
             """
-            sendResponse(connection: connection, status: "200 OK", headers: [
+            let exists = (await diskCache.getCachedFile(for: cleanPath) != nil)
+            let status = exists ? "200 OK" : "201 Created"
+            sendResponse(connection: connection, status: status, headers: [
                 "Content-Type": "application/xml; charset=utf-8",
                 "Lock-Token": "<\(lockToken)>"
             ], body: Data(xml.utf8))
@@ -242,33 +249,54 @@ public final class WebDAVServer: @unchecked Sendable {
         let depth = headers["depth"] ?? "1"
 
         if cleanPath.isEmpty {
-            // Root collection
-            do {
-                let (files, folders) = try await r2Client.listObjects(prefix: "")
-                await diskCache.setCachedListing(prefix: "", items: files, folders: folders)
-
-                var xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<D:multistatus xmlns:D=\"DAV:\">\n"
-                let rootHref = baseHref.isEmpty ? "/" : "\(baseHref)/"
-                xml += makeResponseXML(href: rootHref, isDirectory: true, size: 0, mtime: Date())
-
-                if depth != "0" {
-                    for folder in folders {
-                        let folderHref = "\(baseHref)/\(folder)"
-                        xml += makeResponseXML(href: folderHref, isDirectory: true, size: 0, mtime: Date())
-                    }
-                    for file in files {
-                        let fileHref = "\(baseHref)/\(file.key)"
-                        xml += makeResponseXML(href: fileHref, isDirectory: false, size: file.size, mtime: file.lastModified)
-                    }
+            // Root collection: serve from memory metadata cache if available
+            let files: [S3ObjectItem]
+            let folders: [String]
+            if let cached = await diskCache.getCachedListing(prefix: "") {
+                files = cached.items
+                folders = cached.folders
+            } else {
+                do {
+                    let fetched = try await r2Client.listObjects(prefix: "")
+                    await diskCache.setCachedListing(prefix: "", items: fetched.0, folders: fetched.1)
+                    files = fetched.0
+                    folders = fetched.1
+                } catch {
+                    sendResponse(connection: connection, status: "500 Internal Server Error", headers: [:], body: Data())
+                    return
                 }
-
-                xml += "</D:multistatus>"
-                sendResponse(connection: connection, status: "207 Multi-Status", headers: [
-                    "Content-Type": "application/xml; charset=utf-8"
-                ], body: Data(xml.utf8))
-            } catch {
-                sendResponse(connection: connection, status: "500 Internal Server Error", headers: [:], body: Data())
             }
+
+            var xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<D:multistatus xmlns:D=\"DAV:\">\n"
+            let rootHref = baseHref.isEmpty ? "/" : "\(baseHref)/"
+            xml += makeResponseXML(href: rootHref, isDirectory: true, size: 0, mtime: Date())
+
+            if depth != "0" {
+                for folder in folders {
+                    let folderHref = "\(baseHref)/\(folder)"
+                    xml += makeResponseXML(href: folderHref, isDirectory: true, size: 0, mtime: Date())
+                }
+                for file in files {
+                    let fileHref = "\(baseHref)/\(file.key)"
+                    xml += makeResponseXML(href: fileHref, isDirectory: false, size: file.size, mtime: file.lastModified)
+                }
+            }
+
+            xml += "</D:multistatus>"
+            sendResponse(connection: connection, status: "207 Multi-Status", headers: [
+                "Content-Type": "application/xml; charset=utf-8"
+            ], body: Data(xml.utf8))
+            return
+        }
+
+        // Fast check: if file was recently created and cached locally, answer immediately!
+        if let cachedData = await diskCache.getCachedFile(for: cleanPath) {
+            var xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<D:multistatus xmlns:D=\"DAV:\">\n"
+            xml += makeResponseXML(href: "\(baseHref)/\(cleanPath)", isDirectory: false, size: Int64(cachedData.count), mtime: Date())
+            xml += "</D:multistatus>"
+            sendResponse(connection: connection, status: "207 Multi-Status", headers: [
+                "Content-Type": "application/xml; charset=utf-8"
+            ], body: Data(xml.utf8))
             return
         }
 
@@ -276,48 +304,69 @@ public final class WebDAVServer: @unchecked Sendable {
         let parentDir = (cleanPath as NSString).deletingLastPathComponent
         let parentPrefix = (parentDir == "." || parentDir.isEmpty) ? "" : "\(parentDir)/"
 
-        do {
-            let (parentFiles, parentFolders) = try await r2Client.listObjects(prefix: parentPrefix)
-
-            // Check if it is a file
-            if let file = parentFiles.first(where: { $0.key == cleanPath }) {
-                var xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<D:multistatus xmlns:D=\"DAV:\">\n"
-                xml += makeResponseXML(href: "\(baseHref)/\(file.key)", isDirectory: false, size: file.size, mtime: file.lastModified)
-                xml += "</D:multistatus>"
-                sendResponse(connection: connection, status: "207 Multi-Status", headers: [
-                    "Content-Type": "application/xml; charset=utf-8"
-                ], body: Data(xml.utf8))
+        let parentFiles: [S3ObjectItem]
+        let parentFolders: [String]
+        if let cached = await diskCache.getCachedListing(prefix: parentPrefix) {
+            parentFiles = cached.items
+            parentFolders = cached.folders
+        } else {
+            do {
+                let fetched = try await r2Client.listObjects(prefix: parentPrefix)
+                await diskCache.setCachedListing(prefix: parentPrefix, items: fetched.0, folders: fetched.1)
+                parentFiles = fetched.0
+                parentFolders = fetched.1
+            } catch {
+                sendResponse(connection: connection, status: "404 Not Found", headers: [:], body: Data())
                 return
             }
-
-            // Check if it is a directory
-            let folderPrefix = cleanPath.hasSuffix("/") ? cleanPath : "\(cleanPath)/"
-            if parentFolders.contains(folderPrefix) {
-                var xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<D:multistatus xmlns:D=\"DAV:\">\n"
-                xml += makeResponseXML(href: "\(baseHref)/\(folderPrefix)", isDirectory: true, size: 0, mtime: Date())
-
-                if depth != "0" {
-                    let (subFiles, subFolders) = try await r2Client.listObjects(prefix: folderPrefix)
-                    for folder in subFolders {
-                        xml += makeResponseXML(href: "\(baseHref)/\(folder)", isDirectory: true, size: 0, mtime: Date())
-                    }
-                    for file in subFiles {
-                        xml += makeResponseXML(href: "\(baseHref)/\(file.key)", isDirectory: false, size: file.size, mtime: file.lastModified)
-                    }
-                }
-
-                xml += "</D:multistatus>"
-                sendResponse(connection: connection, status: "207 Multi-Status", headers: [
-                    "Content-Type": "application/xml; charset=utf-8"
-                ], body: Data(xml.utf8))
-                return
-            }
-
-            // Not found
-            sendResponse(connection: connection, status: "404 Not Found", headers: [:], body: Data())
-        } catch {
-            sendResponse(connection: connection, status: "404 Not Found", headers: [:], body: Data())
         }
+
+        // Check if it is a file
+        if let file = parentFiles.first(where: { $0.key == cleanPath }) {
+            var xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<D:multistatus xmlns:D=\"DAV:\">\n"
+            xml += makeResponseXML(href: "\(baseHref)/\(file.key)", isDirectory: false, size: file.size, mtime: file.lastModified)
+            xml += "</D:multistatus>"
+            sendResponse(connection: connection, status: "207 Multi-Status", headers: [
+                "Content-Type": "application/xml; charset=utf-8"
+            ], body: Data(xml.utf8))
+            return
+        }
+
+        // Check if it is a directory
+        let folderPrefix = cleanPath.hasSuffix("/") ? cleanPath : "\(cleanPath)/"
+        if parentFolders.contains(folderPrefix) {
+            var xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<D:multistatus xmlns:D=\"DAV:\">\n"
+            xml += makeResponseXML(href: "\(baseHref)/\(folderPrefix)", isDirectory: true, size: 0, mtime: Date())
+
+            if depth != "0" {
+                let subFiles: [S3ObjectItem]
+                let subFolders: [String]
+                if let cached = await diskCache.getCachedListing(prefix: folderPrefix) {
+                    subFiles = cached.items
+                    subFolders = cached.folders
+                } else {
+                    let fetched = (try? await r2Client.listObjects(prefix: folderPrefix)) ?? ([], [])
+                    await diskCache.setCachedListing(prefix: folderPrefix, items: fetched.0, folders: fetched.1)
+                    subFiles = fetched.0
+                    subFolders = fetched.1
+                }
+                for folder in subFolders {
+                    xml += makeResponseXML(href: "\(baseHref)/\(folder)", isDirectory: true, size: 0, mtime: Date())
+                }
+                for file in subFiles {
+                    xml += makeResponseXML(href: "\(baseHref)/\(file.key)", isDirectory: false, size: file.size, mtime: file.lastModified)
+                }
+            }
+
+            xml += "</D:multistatus>"
+            sendResponse(connection: connection, status: "207 Multi-Status", headers: [
+                "Content-Type": "application/xml; charset=utf-8"
+            ], body: Data(xml.utf8))
+            return
+        }
+
+        // Not found
+        sendResponse(connection: connection, status: "404 Not Found", headers: [:], body: Data())
     }
 
     private func makeResponseXML(href: String, isDirectory: Bool, size: Int64, mtime: Date) -> String {
@@ -424,40 +473,47 @@ public final class WebDAVServer: @unchecked Sendable {
     }
 
     private func handlePut(connection: NWConnection, cleanPath: String, body: Data) async {
-        do {
-            var payload = body
-            if let decoded = WebDAVServer.decodeChunkedData(body), !decoded.isEmpty {
-                payload = decoded
+        var payload = body
+        if let decoded = WebDAVServer.decodeChunkedData(body, allowIncomplete: true), !decoded.isEmpty {
+            payload = decoded
+        }
+        // 1. Instantly save to local disk cache for immediate Finder access
+        await diskCache.saveCachedFile(for: cleanPath, data: payload)
+        await diskCache.invalidateListing()
+
+        // 2. Respond immediately to Finder so copy completes with zero delay
+        sendResponse(connection: connection, status: "201 Created", headers: [:], body: Data())
+
+        // 3. Upload to Cloudflare R2 asynchronously in the background
+        Task.detached(priority: .userInitiated) { [r2Client = self.r2Client] in
+            do {
+                try await r2Client.putObject(key: cleanPath, data: payload)
+            } catch {
+                print("Background R2 upload error for \(cleanPath): \(error)")
             }
-            try await r2Client.putObject(key: cleanPath, data: payload)
-            await diskCache.saveCachedFile(for: cleanPath, data: payload)
-            await diskCache.invalidateListing()
-            sendResponse(connection: connection, status: "201 Created", headers: [:], body: Data())
-        } catch {
-            sendResponse(connection: connection, status: "500 Internal Server Error", headers: [:], body: Data())
         }
     }
 
     // MARK: - Chunked Encoding & Range Helpers
 
-    public static func decodeChunkedData(_ data: Data) -> Data? {
+    public static func decodeChunkedData(_ data: Data, allowIncomplete: Bool = false) -> Data? {
         var output = Data()
         var offset = 0
         let crlf = Data("\r\n".utf8)
 
         while offset < data.count {
             guard let lineEndRange = data.range(of: crlf, options: [], in: offset..<data.count) else {
-                return nil
+                break
             }
 
             let lineData = data.subdata(in: offset..<lineEndRange.lowerBound)
             guard let lineStr = String(data: lineData, encoding: .utf8)?.trimmingCharacters(in: .whitespaces) else {
-                return nil
+                break
             }
 
             let sizeStr = lineStr.split(separator: ";").first.map(String.init) ?? lineStr
             guard let chunkSize = Int(sizeStr.trimmingCharacters(in: .whitespaces), radix: 16) else {
-                return nil
+                break
             }
 
             if chunkSize == 0 {
@@ -468,7 +524,7 @@ public final class WebDAVServer: @unchecked Sendable {
             let chunkDataEnd = chunkDataStart + chunkSize
 
             guard chunkDataEnd <= data.count else {
-                return nil
+                break
             }
 
             output.append(data.subdata(in: chunkDataStart..<chunkDataEnd))
@@ -481,7 +537,10 @@ public final class WebDAVServer: @unchecked Sendable {
             }
         }
 
-        return output.isEmpty ? nil : output
+        if allowIncomplete && !output.isEmpty {
+            return output
+        }
+        return nil
     }
 
     public static func parseByteRange(_ header: String, totalSize: Int) -> (start: Int, end: Int)? {
