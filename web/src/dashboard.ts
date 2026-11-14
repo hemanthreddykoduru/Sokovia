@@ -146,7 +146,6 @@ export async function loadUserSubscription(): Promise<void> {
       .from('user_subscriptions')
       .select('*')
       .eq('email', currentUserEmail)
-      .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(1);
 
@@ -320,6 +319,23 @@ export async function fetchFiles(): Promise<void> {
   } catch (err) {
     console.error('Files fetch error:', err);
   }
+}
+
+export function showPaymentSuccessModal(storage: string, amountInr: number): void {
+  const modal = document.getElementById('paymentSuccessModal');
+  const desc = document.getElementById('paymentSuccessDesc');
+  if (desc) {
+    desc.textContent = `Your ${storage} plan (₹${amountInr.toLocaleString()}) is now active. Your storage bar and macOS Finder drive have been upgraded.`;
+  }
+  if (modal) {
+    modal.style.display = 'flex';
+  }
+}
+
+export function closePaymentSuccessModal(): void {
+  const modal = document.getElementById('paymentSuccessModal');
+  if (modal) modal.style.display = 'none';
+  window.location.reload();
 }
 
 export function renderFilesUI(files: BucketFile[], folders: string[], totalBytes: number): void {
@@ -667,8 +683,8 @@ export async function handleContinueToPayment(): Promise<void> {
 
           const verifyData = await verifyRes.json();
           if (verifyRes.ok && verifyData.success) {
-            alert(`🎉 Success! Your payment of ₹${amountInr.toLocaleString()} was successful.\n\nYour Sokovia ${tier.storage} plan is now active!`);
-            window.location.reload();
+            applyActivePlanUI(tier.storage, currentBillingCycle, amountInr);
+            showPaymentSuccessModal(tier.storage, amountInr);
           } else {
             alert('Payment received, but verification returned an error: ' + (verifyData.error || 'Unknown error'));
           }
@@ -716,6 +732,7 @@ if (typeof window !== 'undefined') {
   w.setPlanStep = setPlanStep;
   w.setPlanBilling = setPlanBilling;
   w.handleContinueToPayment = handleContinueToPayment;
+  w.closePaymentSuccessModal = closePaymentSuccessModal;
 
   window.addEventListener('DOMContentLoaded', () => {
     initDashboard();

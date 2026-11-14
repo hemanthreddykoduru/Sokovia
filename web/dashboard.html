@@ -512,6 +512,73 @@
     /* Hidden File Input for Upload */
     #fileInput { display: none; }
 
+    /* Success Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 36px 32px;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.92); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .modal-badge-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #eef7f0;
+      color: var(--saving);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      color: #000;
+    }
+    .modal-desc {
+      font-size: 13.5px;
+      color: var(--ink-2);
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+    .modal-btn {
+      width: 100%;
+      background: #000000;
+      color: #ffffff;
+      border: none;
+      border-radius: 999px;
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .modal-btn:hover { background: #222222; }
+
     /* Modern Helumi Shimmer Skeleton Styles */
     @keyframes skeleton-shimmer {
       0% { background-position: -200% 0; }
@@ -997,6 +1064,18 @@
     <!-- Hidden Upload Input -->
     <input type="file" id="fileInput" onchange="handleFileUpload(event)" multiple/>
   </main>
+
+  <!-- Premium Apple-grade Success Dialog Modal -->
+  <div class="modal-overlay" id="paymentSuccessModal">
+    <div class="modal-card">
+      <div class="modal-badge-icon">✓</div>
+      <h3 class="modal-title">payment successful</h3>
+      <p class="modal-desc" id="paymentSuccessDesc">
+        Your plan has been activated. Enjoy seamless terabytes on your Mac with zero local disk usage.
+      </p>
+      <button class="modal-btn" onclick="closePaymentSuccessModal()">done</button>
+    </div>
+  </div>
 
   <!-- ================= HELUMI BOTTOM DOCK NAVIGATION ================= -->
   <div class="bottom-dock-wrap">
