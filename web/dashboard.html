@@ -595,6 +595,44 @@
       max-width: 600px;
       margin: 0 auto;
     }
+    .current-plan-hero {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      max-width: 600px;
+      margin: 0 auto 24px;
+      text-align: left;
+    }
+    .current-plan-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #eef7f0;
+      color: var(--saving);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 16px;
+    }
+    .current-plan-storage {
+      font-size: 36px;
+      font-weight: 700;
+      color: #000000;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+    .current-plan-meta {
+      font-size: 13.5px;
+      color: var(--ink-2);
+      margin-bottom: 24px;
+    }
+    .current-plan-actions {
+      display: flex;
+      gap: 12px;
+    }
     .plan-subheading {
       font-size: 13px;
       color: var(--ink-2);
@@ -937,12 +975,45 @@
         <p style="font-size: 13px; color: var(--ink-2);">pay only for the space you need. change or cancel any time.</p>
       </div>
 
-      <div class="plan-card">
-        <div id="activeSubscriptionBanner" style="display: none; background: #eef7f0; border: 1px solid rgba(24, 112, 58, 0.25); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: var(--saving); font-weight: 500;">
-          <span>✓ Active Plan: <b id="activePlanBadgeText">500 GB</b> (<span id="activePlanCycleText">monthly</span>)</span>
+      <!-- VIEW A: When user already has an active paid subscription -->
+      <div id="activeSubscriptionCard" class="current-plan-hero" style="display: none;">
+        <div class="current-plan-tag">
+          <span>●</span> active subscription
+        </div>
+        <div class="current-plan-storage" id="activeSubStorageTitle">500 GB</div>
+        <div class="current-plan-meta" id="activeSubMetaDesc">
+          Billed monthly via Razorpay · renews automatically
         </div>
 
-        <div class="plan-subheading">choose your space</div>
+        <ul class="plan-feature-list" style="margin-bottom: 28px;">
+          <li class="plan-feature-item">
+            <span class="plan-feature-check">✓</span>
+            <span>files take zero bytes on your mac and open instantly</span>
+          </li>
+          <li class="plan-feature-item">
+            <span class="plan-feature-check">✓</span>
+            <span>isolated cloudflare r2 private bucket dedicated to you</span>
+          </li>
+          <li class="plan-feature-item">
+            <span class="plan-feature-check">✓</span>
+            <span>end-to-end aes-gcm-256 client-side encryption</span>
+          </li>
+          <li class="plan-feature-item">
+            <span class="plan-feature-check">✓</span>
+            <span>unlimited download and streaming bandwidth</span>
+          </li>
+        </ul>
+
+        <div class="current-plan-actions">
+          <button type="button" class="plan-cta-btn" onclick="toggleUpgradeSlider()" id="btnToggleUpgrade" style="background:#000000;">
+            upgrade to more space
+          </button>
+        </div>
+      </div>
+
+      <!-- VIEW B: Choose / Upgrade Space Slider Card -->
+      <div class="plan-card" id="planSliderCard">
+        <div class="plan-subheading" id="planSliderHeading">choose your space</div>
         <div class="plan-price-row">
           <span class="plan-price-amount" id="planPriceDisplay">$5</span>
           <span class="plan-price-unit"><span id="planBillingPeriod">/ month</span> for <b id="planStorageDisplay">500 GB</b></span>

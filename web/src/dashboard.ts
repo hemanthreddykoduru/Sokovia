@@ -176,13 +176,20 @@ export function applyActivePlanUI(storage: string, cycle: string, amountInr?: nu
   const quotaLabel = document.getElementById('currentPlanQuotaLabel');
   if (quotaLabel) quotaLabel.textContent = storage;
 
-  // 2. Active plan banner on Plan Tab
-  const banner = document.getElementById('activeSubscriptionBanner');
-  const badgeText = document.getElementById('activePlanBadgeText');
-  const cycleText = document.getElementById('activePlanCycleText');
-  if (banner) banner.style.display = 'block';
-  if (badgeText) badgeText.textContent = storage;
-  if (cycleText) cycleText.textContent = cycle;
+  // 2. Active plan card display on Plan Tab
+  const activeCard = document.getElementById('activeSubscriptionCard');
+  const sliderCard = document.getElementById('planSliderCard');
+  const activeTitle = document.getElementById('activeSubStorageTitle');
+  const activeDesc = document.getElementById('activeSubMetaDesc');
+
+  if (activeCard && sliderCard) {
+    activeCard.style.display = 'block';
+    sliderCard.style.display = 'none'; // Hide slider by default since plan is active
+    if (activeTitle) activeTitle.textContent = storage;
+    if (activeDesc) {
+      activeDesc.textContent = `Billed ${cycle} via Razorpay ${amountInr ? `(₹${amountInr.toLocaleString()})` : ''} · renews automatically`;
+    }
+  }
 
   // 3. Account Settings tab
   const planTitle = document.getElementById('accountPlanTitle');
@@ -198,6 +205,25 @@ export function applyActivePlanUI(storage: string, cycle: string, amountInr?: nu
 
   // Re-render storage meter with new quota
   renderFilesUI(loadedFiles, [], totalStorageUsedBytes);
+}
+
+export function toggleUpgradeSlider(): void {
+  const activeCard = document.getElementById('activeSubscriptionCard');
+  const sliderCard = document.getElementById('planSliderCard');
+  const heading = document.getElementById('planSliderHeading');
+  const btn = document.getElementById('btnToggleUpgrade');
+
+  if (sliderCard && activeCard) {
+    if (sliderCard.style.display === 'none') {
+      sliderCard.style.display = 'block';
+      if (heading) heading.textContent = 'select your upgrade tier';
+      if (btn) btn.textContent = 'hide upgrade options';
+      sliderCard.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      sliderCard.style.display = 'none';
+      if (btn) btn.textContent = 'upgrade to more space';
+    }
+  }
 }
 
 let totalStorageUsedBytes: number = 0;
@@ -747,6 +773,7 @@ if (typeof window !== 'undefined') {
   w.setPlanBilling = setPlanBilling;
   w.handleContinueToPayment = handleContinueToPayment;
   w.closePaymentSuccessModal = closePaymentSuccessModal;
+  w.toggleUpgradeSlider = toggleUpgradeSlider;
 
   window.addEventListener('DOMContentLoaded', () => {
     initDashboard();
