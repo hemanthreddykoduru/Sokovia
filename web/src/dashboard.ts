@@ -624,17 +624,29 @@ function renderPlanUI(): void {
     }
   });
 
-  // Dynamic button text based on whether this is current plan or an upgrade
+  // Dynamic button text based on whether this is current plan, upgrade, or downgrade
   const submitBtn = document.getElementById('planSubmitBtn') as HTMLButtonElement | null;
   if (submitBtn) {
-    const isCurrentPlan = currentActivePlanStorage.toLowerCase().includes(tier.storage.toLowerCase()) && 
+    // Find index of user's active plan
+    const activeIdx = PLAN_TIERS.findIndex(t => 
+      currentActivePlanStorage.toLowerCase().includes(t.storage.toLowerCase())
+    );
+
+    const isCurrentPlan = activeIdx !== -1 && activeIdx === currentPlanStep &&
                           currentActiveBillingCycle === currentBillingCycle;
+
     if (isCurrentPlan) {
       submitBtn.textContent = 'current active plan';
-      submitBtn.style.opacity = '0.7';
+      submitBtn.style.opacity = '0.6';
+      submitBtn.style.pointerEvents = 'none';
+    } else if (activeIdx !== -1 && currentPlanStep < activeIdx) {
+      submitBtn.textContent = 'downgrade plan';
+      submitBtn.style.opacity = '1';
+      submitBtn.style.pointerEvents = 'auto';
     } else {
       submitBtn.textContent = 'upgrade plan';
       submitBtn.style.opacity = '1';
+      submitBtn.style.pointerEvents = 'auto';
     }
   }
 }
