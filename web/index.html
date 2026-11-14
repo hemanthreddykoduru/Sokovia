@@ -994,7 +994,10 @@
             <div class="input-group">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <label class="input-label" for="authPassword" style="margin-bottom: 0;">password</label>
-                <button type="button" id="magicCodeToggleBtn" onclick="toggleOtpMode()" style="background: none; border: none; font-size: 12px; color: var(--ink-2); cursor: pointer; text-decoration: underline; padding: 0;">use email code instead</button>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <a href="/forgot-password" id="forgotPwdLink" style="display: none; font-size: 12px; color: var(--ink-2); text-decoration: underline;">forgot?</a>
+                  <button type="button" id="magicCodeToggleBtn" onclick="toggleOtpMode()" style="background: none; border: none; font-size: 12px; color: var(--ink-2); cursor: pointer; text-decoration: underline; padding: 0;">use email code instead</button>
+                </div>
               </div>
               <div class="input-wrapper" id="passwordWrapper">
                 <input type="password" id="authPassword" class="text-input" placeholder="minimum 6 characters" autocomplete="current-password"/>

@@ -80,6 +80,7 @@ export function switchTab(mode: 'signup' | 'signin'): void {
   const pwdWrapper = document.getElementById('passwordWrapper');
   const pwdInput = document.getElementById('authPassword') as HTMLInputElement | null;
   const magicBtn = document.getElementById('magicCodeToggleBtn');
+  const forgotLink = document.getElementById('forgotPwdLink');
   const errEl = document.getElementById('sendCodeError');
   if (errEl) errEl.style.display = 'none';
 
@@ -91,6 +92,7 @@ export function switchTab(mode: 'signup' | 'signin'): void {
     if (nameGroup) nameGroup.style.display = 'block';
     if (submitBtn) submitBtn.textContent = isOtpOnly ? 'send verification code' : 'create account';
     if (pwdInput) pwdInput.placeholder = 'minimum 6 characters';
+    if (forgotLink) forgotLink.style.display = 'none';
   } else {
     if (heading) heading.textContent = 'sign in to sokovia';
     if (desc) desc.textContent = isOtpOnly
@@ -99,6 +101,7 @@ export function switchTab(mode: 'signup' | 'signin'): void {
     if (nameGroup) nameGroup.style.display = 'none';
     if (submitBtn) submitBtn.textContent = isOtpOnly ? 'send sign-in code' : 'sign in';
     if (pwdInput) pwdInput.placeholder = 'enter your password';
+    if (forgotLink) forgotLink.style.display = isOtpOnly ? 'none' : 'inline';
   }
 }
 
@@ -106,6 +109,7 @@ export function toggleOtpMode(): void {
   isOtpOnly = !isOtpOnly;
   const pwdWrapper = document.getElementById('passwordWrapper');
   const magicBtn = document.getElementById('magicCodeToggleBtn');
+  const forgotLink = document.getElementById('forgotPwdLink');
   const pwdInput = document.getElementById('authPassword') as HTMLInputElement | null;
   const desc = document.getElementById('authDesc');
   const submitBtn = document.getElementById('sendCodeBtn') as HTMLButtonElement | null;
@@ -113,6 +117,7 @@ export function toggleOtpMode(): void {
   if (isOtpOnly) {
     if (pwdWrapper) pwdWrapper.style.display = 'none';
     if (pwdInput) pwdInput.required = false;
+    if (forgotLink) forgotLink.style.display = 'none';
     if (magicBtn) magicBtn.textContent = 'use password instead';
     if (submitBtn) submitBtn.textContent = currentMode === 'signup' ? 'send verification code' : 'send sign-in code';
     if (desc) desc.textContent = currentMode === 'signup'
@@ -120,6 +125,7 @@ export function toggleOtpMode(): void {
       : 'Enter your email to receive a sign-in code and access your private bucket.';
   } else {
     if (pwdWrapper) pwdWrapper.style.display = 'flex';
+    if (forgotLink && currentMode === 'signin') forgotLink.style.display = 'inline';
     if (magicBtn) magicBtn.textContent = 'use email code instead';
     if (submitBtn) submitBtn.textContent = currentMode === 'signup' ? 'create account' : 'sign in';
     if (desc) desc.textContent = currentMode === 'signup'
