@@ -439,6 +439,33 @@
       margin-top: 8px;
       display: none;
     }
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-wrapper .text-input {
+      padding-right: 42px;
+    }
+    .pwd-toggle-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--ink-3);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      transition: color 0.15s;
+    }
+    .pwd-toggle-btn:hover {
+      color: var(--ink);
+    }
     .isolation-badge {
       font-size: 12px;
       color: var(--saving);
@@ -937,7 +964,7 @@
         <div id="authFormView">
           <h2 id="authHeading">create your account</h2>
           <p class="card-desc" id="authDesc">
-            Enter your email to receive a verification code. Once verified, your isolated Cloudflare R2 bucket is provisioned automatically.
+            Enter your email and create a password. Once created, your isolated Cloudflare R2 bucket is provisioned automatically.
           </p>
 
           <!-- Google Auth Button -->
@@ -953,21 +980,37 @@
 
           <div class="divider">or continue with email</div>
 
-          <form onsubmit="handleSendCode(event)">
+          <form onsubmit="handleAuthSubmit(event)">
+            <div class="input-group" id="nameGroup">
+              <label class="input-label" for="authName">full name</label>
+              <input type="text" id="authName" class="text-input" placeholder="Hemanth Reddy" autocomplete="name"/>
+            </div>
+
             <div class="input-group">
               <label class="input-label" for="authEmail">email address</label>
               <input type="email" id="authEmail" class="text-input" placeholder="you@domain.com" required autocomplete="email"/>
+            </div>
+
+            <div class="input-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label class="input-label" for="authPassword" style="margin-bottom: 0;">password</label>
+                <button type="button" id="magicCodeToggleBtn" onclick="toggleOtpMode()" style="background: none; border: none; font-size: 12px; color: var(--ink-2); cursor: pointer; text-decoration: underline; padding: 0;">use email code instead</button>
+              </div>
+              <div class="input-wrapper" id="passwordWrapper">
+                <input type="password" id="authPassword" class="text-input" placeholder="minimum 6 characters" autocomplete="current-password"/>
+                <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility('authPassword', this)" title="Show/Hide password">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
               <div class="isolation-badge">
                 ✓ isolated per-user bucket · zero access to other users
               </div>
             </div>
 
-            <div class="input-group" id="nameGroup">
-              <label class="input-label" for="authName">name (optional)</label>
-              <input type="text" id="authName" class="text-input" placeholder="Hemanth Reddy"/>
-            </div>
-
-            <button type="submit" id="sendCodeBtn" class="btn-pill btn-dark btn-submit">continue with email</button>
+            <button type="submit" id="sendCodeBtn" class="btn-pill btn-dark btn-submit">create account</button>
             <div id="sendCodeError" class="error-msg"></div>
           </form>
         </div>

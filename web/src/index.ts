@@ -1,6 +1,7 @@
 import { insforge } from './client';
 
 let currentMode: 'signup' | 'signin' = 'signup';
+let isOtpOnly: boolean = false;
 let targetEmail: string = '';
 let targetName: string = '';
 
@@ -76,17 +77,66 @@ export function switchTab(mode: 'signup' | 'signin'): void {
   const desc = document.getElementById('authDesc');
   const nameGroup = document.getElementById('nameGroup');
   const submitBtn = document.getElementById('sendCodeBtn') as HTMLButtonElement | null;
+  const pwdWrapper = document.getElementById('passwordWrapper');
+  const pwdInput = document.getElementById('authPassword') as HTMLInputElement | null;
+  const magicBtn = document.getElementById('magicCodeToggleBtn');
+  const errEl = document.getElementById('sendCodeError');
+  if (errEl) errEl.style.display = 'none';
 
   if (mode === 'signup') {
     if (heading) heading.textContent = 'create your account';
-    if (desc) desc.textContent = 'Enter your email to receive a verification code. Once verified, your isolated Cloudflare R2 bucket is provisioned automatically.';
+    if (desc) desc.textContent = isOtpOnly
+      ? 'Enter your email to receive a verification code. Once verified, your isolated Cloudflare R2 bucket is provisioned.'
+      : 'Enter your email and create a password. Once created, your isolated Cloudflare R2 bucket is provisioned automatically.';
     if (nameGroup) nameGroup.style.display = 'block';
-    if (submitBtn) submitBtn.textContent = 'create account';
+    if (submitBtn) submitBtn.textContent = isOtpOnly ? 'send verification code' : 'create account';
+    if (pwdInput) pwdInput.placeholder = 'minimum 6 characters';
   } else {
     if (heading) heading.textContent = 'sign in to sokovia';
-    if (desc) desc.textContent = 'Enter your email to receive a sign-in code and access your private bucket.';
+    if (desc) desc.textContent = isOtpOnly
+      ? 'Enter your email to receive a sign-in code and access your private bucket.'
+      : 'Enter your email and password to access your private bucket and files.';
     if (nameGroup) nameGroup.style.display = 'none';
-    if (submitBtn) submitBtn.textContent = 'sign in with email';
+    if (submitBtn) submitBtn.textContent = isOtpOnly ? 'send sign-in code' : 'sign in';
+    if (pwdInput) pwdInput.placeholder = 'enter your password';
+  }
+}
+
+export function toggleOtpMode(): void {
+  isOtpOnly = !isOtpOnly;
+  const pwdWrapper = document.getElementById('passwordWrapper');
+  const magicBtn = document.getElementById('magicCodeToggleBtn');
+  const pwdInput = document.getElementById('authPassword') as HTMLInputElement | null;
+  const desc = document.getElementById('authDesc');
+  const submitBtn = document.getElementById('sendCodeBtn') as HTMLButtonElement | null;
+
+  if (isOtpOnly) {
+    if (pwdWrapper) pwdWrapper.style.display = 'none';
+    if (pwdInput) pwdInput.required = false;
+    if (magicBtn) magicBtn.textContent = 'use password instead';
+    if (submitBtn) submitBtn.textContent = currentMode === 'signup' ? 'send verification code' : 'send sign-in code';
+    if (desc) desc.textContent = currentMode === 'signup'
+      ? 'Enter your email to receive a verification code. Once verified, your isolated Cloudflare R2 bucket is provisioned.'
+      : 'Enter your email to receive a sign-in code and access your private bucket.';
+  } else {
+    if (pwdWrapper) pwdWrapper.style.display = 'flex';
+    if (magicBtn) magicBtn.textContent = 'use email code instead';
+    if (submitBtn) submitBtn.textContent = currentMode === 'signup' ? 'create account' : 'sign in';
+    if (desc) desc.textContent = currentMode === 'signup'
+      ? 'Enter your email and create a password. Once created, your isolated Cloudflare R2 bucket is provisioned automatically.'
+      : 'Enter your email and password to access your private bucket and files.';
+  }
+}
+
+export function togglePasswordVisibility(inputId: string, btn: HTMLButtonElement): void {
+  const input = document.getElementById(inputId) as HTMLInputElement | null;
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+  } else {
+    input.type = 'password';
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
   }
 }
 
@@ -100,45 +150,131 @@ export async function handleGoogleAuth(): Promise<void> {
   }
 }
 
-export async function handleSendCode(e: Event): Promise<void> {
+export async function handleAuthSubmit(e: Event): Promise<void> {
   e.preventDefault();
   const emailInput = document.getElementById('authEmail') as HTMLInputElement | null;
+  const pwdInput = document.getElementById('authPassword') as HTMLInputElement | null;
   const nameInput = document.getElementById('authName') as HTMLInputElement | null;
   const btn = document.getElementById('sendCodeBtn') as HTMLButtonElement | null;
   const errEl = document.getElementById('sendCodeError');
 
   const email = emailInput?.value.trim() || '';
+  const password = pwdInput?.value || '';
   const name = nameInput?.value.trim() || '';
 
   if (!email || !btn) return;
-
   targetEmail = email;
   targetName = name;
   if (errEl) errEl.style.display = 'none';
-  btn.disabled = true;
-  btn.textContent = 'sending code...';
 
-  try {
-    const { error } = await insforge.auth.signInWithOtp({ email });
-    if (error) throw error;
+  // If user chose OTP magic code flow
+  if (isOtpOnly) {
+    btn.disabled = true;
+    btn.textContent = 'sending code...';
+    try {
+      const { error } = await insforge.auth.signInWithOtp({ email });
+      if (error) throw error;
 
-    const authFormView = document.getElementById('authFormView');
-    const verifyTargetEmail = document.getElementById('verifyTargetEmail');
-    const verifyView = document.getElementById('verifyView');
-    const otpCode = document.getElementById('otpCode') as HTMLInputElement | null;
+      const authFormView = document.getElementById('authFormView');
+      const verifyTargetEmail = document.getElementById('verifyTargetEmail');
+      const verifyView = document.getElementById('verifyView');
+      const otpCode = document.getElementById('otpCode') as HTMLInputElement | null;
 
-    if (authFormView) authFormView.style.display = 'none';
-    if (verifyTargetEmail) verifyTargetEmail.textContent = email;
-    if (verifyView) verifyView.style.display = 'block';
-    if (otpCode) otpCode.focus();
-  } catch (err: any) {
+      if (authFormView) authFormView.style.display = 'none';
+      if (verifyTargetEmail) verifyTargetEmail.textContent = email;
+      if (verifyView) verifyView.style.display = 'block';
+      if (otpCode) otpCode.focus();
+    } catch (err: any) {
+      if (errEl) {
+        errEl.textContent = err.message || 'Failed to send verification code. Please try again.';
+        errEl.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.textContent = currentMode === 'signup' ? 'send verification code' : 'send sign-in code';
+    }
+    return;
+  }
+
+  // Password flow (Standard Email + Password)
+  if (!password || password.length < 6) {
     if (errEl) {
-      errEl.textContent = err.message || 'Failed to send verification code. Please try again.';
+      errEl.textContent = 'Password must be at least 6 characters.';
       errEl.style.display = 'block';
     }
-    btn.disabled = false;
-    btn.textContent = currentMode === 'signup' ? 'create account' : 'sign in with email';
+    return;
   }
+
+  btn.disabled = true;
+
+  if (currentMode === 'signup') {
+    btn.textContent = 'creating account...';
+    try {
+      const { data, error } = await insforge.auth.signUp({
+        email,
+        password,
+        name: name || undefined
+      });
+      if (error) throw error;
+
+      const userObj = data?.user || { email, name };
+      const sessionPayload = {
+        accessToken: data?.accessToken || '',
+        user: userObj,
+        email,
+        name: name || (data?.user as any)?.name || ''
+      };
+      localStorage.setItem('sokovia_session', JSON.stringify(sessionPayload));
+      document.cookie = "sokovia_user=" + encodeURIComponent(email) + "; path=/; max-age=86400; SameSite=Lax";
+
+      btn.textContent = 'activating bucket...';
+      await provisionUserBucket(email, name);
+
+      window.location.href = '/dashboard?email=' + encodeURIComponent(email);
+    } catch (err: any) {
+      if (errEl) {
+        errEl.textContent = err.message || 'Account creation failed. Please check your details.';
+        errEl.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.textContent = 'create account';
+    }
+  } else {
+    btn.textContent = 'signing in...';
+    try {
+      const { data, error } = await insforge.auth.signInWithPassword({
+        email,
+        password
+      });
+      if (error) throw error;
+
+      const userObj = data?.user || { email, name };
+      const resolvedName = (data?.user as any)?.name || name || '';
+      const sessionPayload = {
+        accessToken: data?.accessToken || '',
+        user: userObj,
+        email,
+        name: resolvedName
+      };
+      localStorage.setItem('sokovia_session', JSON.stringify(sessionPayload));
+      document.cookie = "sokovia_user=" + encodeURIComponent(email) + "; path=/; max-age=86400; SameSite=Lax";
+
+      btn.textContent = 'opening drive...';
+      await provisionUserBucket(email, resolvedName);
+
+      window.location.href = '/dashboard?email=' + encodeURIComponent(email);
+    } catch (err: any) {
+      if (errEl) {
+        errEl.textContent = err.message || 'Invalid email or password. Please try again.';
+        errEl.style.display = 'block';
+      }
+      btn.disabled = false;
+      btn.textContent = 'sign in';
+    }
+  }
+}
+
+export async function handleSendCode(e: Event): Promise<void> {
+  return handleAuthSubmit(e);
 }
 
 export async function handleVerifyCode(e: Event): Promise<void> {
@@ -448,6 +584,9 @@ export async function handleLandingPayment(): Promise<void> {
 if (typeof window !== 'undefined') {
   const w = window as any;
   w.switchTab = switchTab;
+  w.toggleOtpMode = toggleOtpMode;
+  w.togglePasswordVisibility = togglePasswordVisibility;
+  w.handleAuthSubmit = handleAuthSubmit;
   w.handleGoogleAuth = handleGoogleAuth;
   w.handleSendCode = handleSendCode;
   w.handleVerifyCode = handleVerifyCode;
