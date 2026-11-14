@@ -597,6 +597,20 @@ function renderPlanUI(): void {
       tick.classList.remove('active');
     }
   });
+
+  // Dynamic button text based on whether this is current plan or an upgrade
+  const submitBtn = document.getElementById('planSubmitBtn') as HTMLButtonElement | null;
+  if (submitBtn) {
+    const isCurrentPlan = currentActivePlanStorage.toLowerCase().includes(tier.storage.toLowerCase()) && 
+                          currentActiveBillingCycle === currentBillingCycle;
+    if (isCurrentPlan) {
+      submitBtn.textContent = 'current active plan';
+      submitBtn.style.opacity = '0.7';
+    } else {
+      submitBtn.textContent = 'upgrade plan';
+      submitBtn.style.opacity = '1';
+    }
+  }
 }
 
 export async function handleContinueToPayment(): Promise<void> {
