@@ -113,6 +113,23 @@ export async function initDashboard(): Promise<void> {
 
   // 2. Render from instant cache first if available
   try {
+    // Check cached active subscription first to avoid 5 GB flicker
+    const cachedSub = localStorage.getItem('sokovia_sub_' + currentUserEmail);
+    if (cachedSub) {
+      const parsedSub = JSON.parse(cachedSub);
+      if (parsedSub && parsedSub.plan_storage) {
+        currentActivePlanStorage = parsedSub.plan_storage;
+        currentActiveBillingCycle = parsedSub.billing_cycle || 'monthly';
+        const s = parsedSub.plan_storage.toUpperCase();
+        if (s.includes('TB')) {
+          currentPlanQuotaBytes = parseFloat(s.replace('TB', '').trim()) * 1024 * 1024 * 1024 * 1024;
+        } else if (s.includes('GB')) {
+          currentPlanQuotaBytes = parseFloat(s.replace('GB', '').trim()) * 1024 * 1024 * 1024;
+        }
+        applyActivePlanUI(parsedSub.plan_storage, currentActiveBillingCycle, parsedSub.amount_inr);
+      }
+    }
+
     const cachedBucket = localStorage.getItem('sokovia_bucket_' + currentUserEmail);
     if (cachedBucket) {
       const parsed = JSON.parse(cachedBucket);
@@ -151,6 +168,7 @@ export async function loadUserSubscription(): Promise<void> {
 
     if (!error && data && data.length > 0) {
       const sub = data[0];
+      localStorage.setItem('sokovia_sub_' + currentUserEmail, JSON.stringify(sub));
       currentActivePlanStorage = sub.plan_storage;
       currentActiveBillingCycle = sub.billing_cycle;
 
