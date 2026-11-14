@@ -524,7 +524,16 @@ export async function handleContinueToPayment(): Promise<void> {
       submitBtn.textContent = 'opening secure checkout...';
     }
 
-    const email = currentSessionUser?.email || localStorage.getItem('sokovia_email') || 'user@sokovia.dev';
+    const email = currentUserEmail || (function() {
+      try {
+        const s = localStorage.getItem('sokovia_session');
+        if (s) {
+          const parsed = JSON.parse(s);
+          if (parsed && parsed.email) return parsed.email;
+        }
+      } catch (e) {}
+      return localStorage.getItem('sokovia_email') || 'user@sokovia.dev';
+    })();
     const amountUsd = currentBillingCycle === 'yearly' ? tier.yearlyTotal : tier.monthlyPrice;
     
     // Convert USD to INR (at standard ~85 INR per USD) for Razorpay test gateway
@@ -563,7 +572,7 @@ export async function handleContinueToPayment(): Promise<void> {
       order_id: orderData.orderId,
       prefill: {
         email: email,
-        name: currentSessionUser?.name || ''
+        name: currentUserName || ''
       },
       theme: {
         color: '#000000'
