@@ -227,6 +227,101 @@ export async function handleSignOut(): Promise<void> {
   window.location.reload();
 }
 
+// Interactive Landing Page Pricing Slider
+export interface LandingPlanTier {
+  storage: string;
+  monthlyPrice: number;
+  yearlyTotal: number;
+  yearlyEquivalentStr: string;
+}
+
+export const LANDING_PLAN_TIERS: LandingPlanTier[] = [
+  { storage: '500 GB', monthlyPrice: 5, yearlyTotal: 50, yearlyEquivalentStr: '$4.17' },
+  { storage: '1 TB', monthlyPrice: 10, yearlyTotal: 100, yearlyEquivalentStr: '$8.33' },
+  { storage: '2 TB', monthlyPrice: 20, yearlyTotal: 200, yearlyEquivalentStr: '$16.67' },
+  { storage: '3 TB', monthlyPrice: 30, yearlyTotal: 300, yearlyEquivalentStr: '$25' },
+  { storage: '5 TB', monthlyPrice: 50, yearlyTotal: 500, yearlyEquivalentStr: '$41.67' },
+  { storage: '10 TB', monthlyPrice: 100, yearlyTotal: 1000, yearlyEquivalentStr: '$83.33' },
+  { storage: '20 TB', monthlyPrice: 200, yearlyTotal: 2000, yearlyEquivalentStr: '$166.67' },
+  { storage: '30 TB', monthlyPrice: 300, yearlyTotal: 3000, yearlyEquivalentStr: '$250' },
+];
+
+let landingPlanStep = 0;
+let landingBillingCycle: 'monthly' | 'yearly' = 'monthly';
+
+export function updateLandingSlider(val: string | number): void {
+  landingPlanStep = Math.max(0, Math.min(parseInt(val.toString(), 10), LANDING_PLAN_TIERS.length - 1));
+  renderLandingPlanUI();
+}
+
+export function setLandingStep(step: number): void {
+  landingPlanStep = Math.max(0, Math.min(step, LANDING_PLAN_TIERS.length - 1));
+  const slider = document.getElementById('landingStorageSlider') as HTMLInputElement | null;
+  if (slider) slider.value = landingPlanStep.toString();
+  renderLandingPlanUI();
+}
+
+export function setLandingBilling(cycle: 'monthly' | 'yearly'): void {
+  landingBillingCycle = cycle;
+  const btnMonthly = document.getElementById('btnLandingMonthly');
+  const btnYearly = document.getElementById('btnLandingYearly');
+  if (btnMonthly && btnYearly) {
+    if (cycle === 'monthly') {
+      btnMonthly.classList.add('active');
+      btnYearly.classList.remove('active');
+    } else {
+      btnYearly.classList.add('active');
+      btnMonthly.classList.remove('active');
+    }
+  }
+  renderLandingPlanUI();
+}
+
+function renderLandingPlanUI(): void {
+  const tier = LANDING_PLAN_TIERS[landingPlanStep];
+  const priceDisplay = document.getElementById('landingPriceDisplay');
+  const storageDisplay = document.getElementById('landingStorageDisplay');
+  const billingPeriod = document.getElementById('landingBillingPeriod');
+  const yearlySubtext = document.getElementById('landingYearlySubtext');
+  const yearlyPerMonthText = document.getElementById('landingYearlyPerMonthText');
+  const slider = document.getElementById('landingStorageSlider') as HTMLInputElement | null;
+
+  if (slider) {
+    const percent = (landingPlanStep / (LANDING_PLAN_TIERS.length - 1)) * 100;
+    slider.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percent}%, #e5e5ea ${percent}%, #e5e5ea 100%)`;
+  }
+
+  if (storageDisplay) {
+    storageDisplay.textContent = tier.storage;
+  }
+
+  if (priceDisplay && billingPeriod) {
+    if (landingBillingCycle === 'monthly') {
+      priceDisplay.textContent = `$${tier.monthlyPrice.toLocaleString()}`;
+      billingPeriod.textContent = '/ month';
+      if (yearlySubtext) yearlySubtext.style.display = 'none';
+    } else {
+      priceDisplay.textContent = `$${tier.yearlyTotal.toLocaleString()}`;
+      billingPeriod.textContent = '/ year';
+      if (yearlySubtext) {
+        yearlySubtext.style.display = 'block';
+        if (yearlyPerMonthText) {
+          yearlyPerMonthText.textContent = `${tier.yearlyEquivalentStr}/month`;
+        }
+      }
+    }
+  }
+
+  const ticks = document.querySelectorAll('#landingTicksContainer span');
+  ticks.forEach((tick, idx) => {
+    if (idx === landingPlanStep) {
+      tick.classList.add('active');
+    } else {
+      tick.classList.remove('active');
+    }
+  });
+}
+
 // Bind handlers to global window for inline HTML onclick/onsubmit attributes
 if (typeof window !== 'undefined') {
   const w = window as any;
@@ -237,8 +332,12 @@ if (typeof window !== 'undefined') {
   w.handleResendCode = handleResendCode;
   w.backToEmail = backToEmail;
   w.handleSignOut = handleSignOut;
+  w.updateLandingSlider = updateLandingSlider;
+  w.setLandingStep = setLandingStep;
+  w.setLandingBilling = setLandingBilling;
 
   window.addEventListener('DOMContentLoaded', () => {
     checkExistingSession();
+    renderLandingPlanUI();
   });
 }

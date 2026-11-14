@@ -485,6 +485,112 @@
       margin: 12px 0;
     }
 
+    /* Pricing Section */
+    .pricing-card-wrap {
+      max-width: 620px;
+      margin: 0 auto 60px;
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 36px 32px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+      text-align: center;
+    }
+    .landing-plan-price-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+    .landing-plan-price {
+      font-size: 44px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.03em;
+    }
+    .landing-plan-unit {
+      font-size: 15px;
+      color: var(--ink-2);
+    }
+    .landing-plan-unit b {
+      color: var(--ink);
+    }
+    .landing-billing-toggle {
+      display: inline-flex;
+      background: #ececed;
+      padding: 3px;
+      border-radius: 999px;
+      gap: 2px;
+      margin-bottom: 24px;
+    }
+    .landing-toggle-btn {
+      background: transparent;
+      border: none;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--ink-2);
+      transition: all 0.15s;
+    }
+    .landing-toggle-btn.active {
+      background: #ffffff;
+      color: #000000;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      font-weight: 600;
+    }
+    .landing-plan-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #e5e5ea;
+      outline: none;
+      cursor: pointer;
+    }
+    .landing-plan-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #000000;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    .landing-ticks {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--ink-3);
+      font-weight: 500;
+      user-select: none;
+    }
+    .landing-ticks span {
+      cursor: pointer;
+    }
+    .landing-ticks span.active {
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .landing-feature-list {
+      list-style: none;
+      margin: 28px 0;
+      text-align: left;
+    }
+    .landing-feature-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13.5px;
+      color: var(--ink-2);
+      margin-bottom: 12px;
+    }
+
     footer {
       border-top: 1px solid var(--border);
       padding: var(--s-7) var(--gutter);
@@ -509,6 +615,7 @@
     <nav class="nav">
       <span class="nav-logo"><span class="nav-logo-icon"><img src="/favicon.png" alt="Sokovia"/></span>sokovia</span>
       <a href="#how" class="active">how it works</a>
+      <a href="#pricing">plans</a>
       <a href="#auth-section" id="navAuthBtn">login / sign up</a>
       <a href="/downloads/Sokovia-macOS.zip" download>download for mac</a>
     </nav>
@@ -591,6 +698,64 @@
         </div>
       </div>
     </header>
+
+    <!-- Plans & Interactive Pricing Section -->
+    <section class="section" id="pricing" style="padding-top: 40px; padding-bottom: 40px;">
+      <div style="text-align: center; margin-bottom: 28px;">
+        <h2 style="font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px;">plans</h2>
+        <p style="font-size: 15px; color: var(--ink-2);">pay only for the space you need. change or cancel any time.</p>
+      </div>
+
+      <div class="pricing-card-wrap">
+        <div style="font-size: 13px; color: var(--ink-2); margin-bottom: 8px;">choose your space</div>
+        <div class="landing-plan-price-row">
+          <span class="landing-plan-price" id="landingPriceDisplay">$5</span>
+          <span class="landing-plan-unit"><span id="landingBillingPeriod">/ month</span> for <b id="landingStorageDisplay">500 GB</b></span>
+        </div>
+
+        <div class="landing-billing-toggle">
+          <button type="button" class="landing-toggle-btn active" id="btnLandingMonthly" onclick="setLandingBilling('monthly')">monthly</button>
+          <button type="button" class="landing-toggle-btn" id="btnLandingYearly" onclick="setLandingBilling('yearly')">yearly <span style="color:var(--saving); font-weight:600;">-17%</span></button>
+        </div>
+
+        <div id="landingYearlySubtext" style="display: none; font-size: 13px; color: var(--ink-2); margin-top: -14px; margin-bottom: 22px;">
+          same as <span id="landingYearlyPerMonthText">$4.17/month</span>, paid once a year.
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <input type="range" class="landing-plan-slider" id="landingStorageSlider" min="0" max="7" value="0" step="1" oninput="updateLandingSlider(this.value)"/>
+          <div class="landing-ticks" id="landingTicksContainer">
+            <span onclick="setLandingStep(0)" class="active">500 GB</span>
+            <span onclick="setLandingStep(1)">1 TB</span>
+            <span onclick="setLandingStep(2)">2 TB</span>
+            <span onclick="setLandingStep(3)">3 TB</span>
+            <span onclick="setLandingStep(4)">5 TB</span>
+            <span onclick="setLandingStep(5)">10 TB</span>
+            <span onclick="setLandingStep(6)">20 TB</span>
+            <span onclick="setLandingStep(7)">30 TB</span>
+          </div>
+        </div>
+
+        <ul class="landing-feature-list">
+          <li class="landing-feature-item">
+            <span style="font-weight:700; color:var(--ink);">✓</span>
+            <span>files take zero bytes on your mac and open instantly</span>
+          </li>
+          <li class="landing-feature-item">
+            <span style="font-weight:700; color:var(--ink);">✓</span>
+            <span>deleted files kept for 30 days</span>
+          </li>
+          <li class="landing-feature-item">
+            <span style="font-weight:700; color:var(--ink);">✓</span>
+            <span>share links and file requests included</span>
+          </li>
+        </ul>
+
+        <a href="#auth-section" class="btn-pill btn-dark" style="display:block; width:100%; text-decoration:none; text-align:center; padding:14px 20px; font-size:14px; font-weight:600;">
+          continue to payment
+        </a>
+      </div>
+    </section>
 
     <!-- Authentication & Bucket Provisioning Section -->
     <section class="section" id="auth-section">
