@@ -624,7 +624,7 @@ function renderPlanUI(): void {
     }
   });
 
-  // Dynamic button text based on whether this is current plan, upgrade, or downgrade
+  // Dynamic button text: only allow upgrades; lock current plan and lower plans
   const submitBtn = document.getElementById('planSubmitBtn') as HTMLButtonElement | null;
   if (submitBtn) {
     // Find index of user's active plan
@@ -637,16 +637,19 @@ function renderPlanUI(): void {
 
     if (isCurrentPlan) {
       submitBtn.textContent = 'current active plan';
-      submitBtn.style.opacity = '0.6';
+      submitBtn.style.opacity = '0.5';
       submitBtn.style.pointerEvents = 'none';
+      submitBtn.style.background = '#6e6e73';
     } else if (activeIdx !== -1 && currentPlanStep < activeIdx) {
-      submitBtn.textContent = 'downgrade plan';
-      submitBtn.style.opacity = '1';
-      submitBtn.style.pointerEvents = 'auto';
+      submitBtn.textContent = 'plan already exceeds this tier';
+      submitBtn.style.opacity = '0.5';
+      submitBtn.style.pointerEvents = 'none';
+      submitBtn.style.background = '#6e6e73';
     } else {
       submitBtn.textContent = 'upgrade plan';
       submitBtn.style.opacity = '1';
       submitBtn.style.pointerEvents = 'auto';
+      submitBtn.style.background = '#000000';
     }
   }
 }
