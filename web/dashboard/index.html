@@ -759,7 +759,7 @@
           <div class="storage-meta-labels">
             <div>
               <b id="storageUsedText"><span class="skeleton-box skeleton-line" style="width: 40px; height: 12px;"></span></b>
-              <span>of 5 GB used</span>
+              <span>of <b id="currentPlanQuotaLabel">5 GB</b> used</span>
             </div>
             <span id="storageFreeText"><span class="skeleton-box skeleton-line" style="width: 75px; height: 12px;"></span></span>
           </div>
@@ -871,6 +871,10 @@
       </div>
 
       <div class="plan-card">
+        <div id="activeSubscriptionBanner" style="display: none; background: #eef7f0; border: 1px solid rgba(24, 112, 58, 0.25); border-radius: 12px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: var(--saving); font-weight: 500;">
+          <span>✓ Active Plan: <b id="activePlanBadgeText">500 GB</b> (<span id="activePlanCycleText">monthly</span>)</span>
+        </div>
+
         <div class="plan-subheading">choose your space</div>
         <div class="plan-price-row">
           <span class="plan-price-amount" id="planPriceDisplay">$5</span>
@@ -936,6 +940,17 @@
             <h2 id="settingsUserName"><span class="skeleton-box skeleton-line" style="width: 140px; height: 16px;"></span></h2>
             <p id="settingsUserEmail"><span class="skeleton-box skeleton-line" style="width: 180px; height: 12px; margin-top: 4px;"></span></p>
           </div>
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-card-title">current subscription</div>
+        <div class="settings-row">
+          <div class="settings-row-text">
+            <h4 id="accountPlanTitle">Free Tier (5 GB)</h4>
+            <p id="accountPlanSub">Billed via Razorpay</p>
+          </div>
+          <button class="btn-pill-sm" onclick="switchDock('plan')">change plan</button>
         </div>
       </div>
 

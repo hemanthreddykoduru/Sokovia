@@ -10,6 +10,9 @@ export interface BucketFile {
 let currentUserEmail: string = '';
 let currentBucketName: string = '';
 let currentUserName: string = '';
+let currentPlanQuotaBytes: number = 5 * 1024 * 1024 * 1024; // Default 5 GB free
+let currentActivePlanStorage: string = '5 GB free';
+let currentActiveBillingCycle: string = 'free';
 let loadedFiles: BucketFile[] = [];
 let pairingPollTimer: any = null;
 let currentPairingId: string | null = null;
@@ -129,10 +132,76 @@ export async function initDashboard(): Promise<void> {
     }
   } catch (e) {}
 
-  // 3. Initiate device pairing verification & load fresh data concurrently
+  // 3. Initiate device pairing verification, load subscription & fresh data concurrently
   initDevicePairing();
+  loadUserSubscription();
   loadBucketData();
 }
+
+export async function loadUserSubscription(): Promise<void> {
+  if (!currentUserEmail) return;
+
+  try {
+    const { data, error } = await insforge.database
+      .from('user_subscriptions')
+      .select('*')
+      .eq('email', currentUserEmail)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (!error && data && data.length > 0) {
+      const sub = data[0];
+      currentActivePlanStorage = sub.plan_storage;
+      currentActiveBillingCycle = sub.billing_cycle;
+
+      // Parse plan storage to bytes
+      const s = sub.plan_storage.toUpperCase();
+      if (s.includes('TB')) {
+        const tb = parseFloat(s.replace('TB', '').trim());
+        currentPlanQuotaBytes = tb * 1024 * 1024 * 1024 * 1024;
+      } else if (s.includes('GB')) {
+        const gb = parseFloat(s.replace('GB', '').trim());
+        currentPlanQuotaBytes = gb * 1024 * 1024 * 1024;
+      }
+
+      applyActivePlanUI(sub.plan_storage, sub.billing_cycle, sub.amount_inr);
+    }
+  } catch (e) {
+    console.error('Error loading subscription:', e);
+  }
+}
+
+export function applyActivePlanUI(storage: string, cycle: string, amountInr?: number): void {
+  // 1. Quota label on Home bar
+  const quotaLabel = document.getElementById('currentPlanQuotaLabel');
+  if (quotaLabel) quotaLabel.textContent = storage;
+
+  // 2. Active plan banner on Plan Tab
+  const banner = document.getElementById('activeSubscriptionBanner');
+  const badgeText = document.getElementById('activePlanBadgeText');
+  const cycleText = document.getElementById('activePlanCycleText');
+  if (banner) banner.style.display = 'block';
+  if (badgeText) badgeText.textContent = storage;
+  if (cycleText) cycleText.textContent = cycle;
+
+  // 3. Account Settings tab
+  const planTitle = document.getElementById('accountPlanTitle');
+  const planSub = document.getElementById('accountPlanSub');
+  if (planTitle) planTitle.textContent = `${storage} Plan (Active)`;
+  if (planSub) planSub.textContent = `Billed ${cycle} via Razorpay ${amountInr ? `(₹${amountInr.toLocaleString()})` : ''}`;
+
+  // 4. Update slider step if matched
+  const matchedIdx = PLAN_TIERS.findIndex(t => t.storage.toLowerCase() === storage.toLowerCase());
+  if (matchedIdx !== -1) {
+    setPlanStep(matchedIdx);
+  }
+
+  // Re-render storage meter with new quota
+  renderFilesUI(loadedFiles, [], totalStorageUsedBytes);
+}
+
+let totalStorageUsedBytes: number = 0;
 
 export async function initDevicePairing(): Promise<void> {
   if (sessionStorage.getItem('sokovia_unlocked') === 'true') {
@@ -254,7 +323,8 @@ export async function fetchFiles(): Promise<void> {
 }
 
 export function renderFilesUI(files: BucketFile[], folders: string[], totalBytes: number): void {
-  const maxBytes = 5 * 1024 * 1024 * 1024;
+  totalStorageUsedBytes = totalBytes;
+  const maxBytes = currentPlanQuotaBytes || (5 * 1024 * 1024 * 1024);
   const pct = Math.min(100, Math.max(1, (totalBytes / maxBytes) * 100));
   const freeBytes = Math.max(0, maxBytes - totalBytes);
 
