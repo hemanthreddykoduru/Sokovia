@@ -329,6 +329,121 @@ export function toggleFaq(el: HTMLElement): void {
   }
 }
 
+export async function handleLandingPayment(): Promise<void> {
+  const emailInput = document.getElementById('authEmail') as HTMLInputElement | null;
+  const userEmail = currentSessionUser?.email || emailInput?.value || localStorage.getItem('sokovia_email');
+
+  if (!currentSessionUser && !userEmail) {
+    alert('Please enter your email or sign up below to continue to payment.');
+    const authSection = document.getElementById('auth-section');
+    if (authSection) authSection.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+
+  const tier = LANDING_PLAN_TIERS[landingPlanStep];
+  const submitBtn = document.getElementById('landingPlanSubmitBtn') as HTMLButtonElement | null;
+  const originalText = submitBtn ? submitBtn.textContent : 'continue to payment';
+
+  try {
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'opening secure checkout...';
+    }
+
+    const amountUsd = landingBillingCycle === 'yearly' ? tier.yearlyTotal : tier.monthlyPrice;
+    const amountInr = Math.round(amountUsd * 85);
+
+    const orderRes = await fetch('https://26u7vqfh.function2.insforge.app/create-razorpay-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: userEmail,
+        storage: tier.storage,
+        billingCycle: landingBillingCycle,
+        amountInr
+      })
+    });
+
+    const orderData = await orderRes.json();
+    if (!orderRes.ok || !orderData.orderId) {
+      throw new Error(orderData.error || 'Failed to initiate Razorpay checkout');
+    }
+
+    const rzp = (window as any).Razorpay;
+    if (!rzp) {
+      throw new Error('Razorpay SDK failed to load. Please refresh.');
+    }
+
+    const options = {
+      key: orderData.keyId,
+      amount: orderData.amount,
+      currency: orderData.currency || 'INR',
+      name: 'Sokovia',
+      description: `${tier.storage} Plan (${landingBillingCycle}) - ₹${amountInr.toLocaleString()}`,
+      image: '/favicon.png',
+      order_id: orderData.orderId,
+      prefill: {
+        email: userEmail
+      },
+      theme: {
+        color: '#000000'
+      },
+      handler: async function (response: any) {
+        try {
+          if (submitBtn) submitBtn.textContent = 'verifying payment...';
+
+          const verifyRes = await fetch('https://26u7vqfh.function2.insforge.app/verify-razorpay-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              email: userEmail,
+              storage: tier.storage,
+              billingCycle: landingBillingCycle,
+              amountInr
+            })
+          });
+
+          const verifyData = await verifyRes.json();
+          if (verifyRes.ok && verifyData.success) {
+            alert(`🎉 Success! Your payment of ₹${amountInr.toLocaleString()} was successful.\n\nYour Sokovia ${tier.storage} plan is now active!`);
+            window.location.href = '/dashboard';
+          } else {
+            alert('Payment received, but verification error: ' + (verifyData.error || 'Unknown error'));
+          }
+        } catch (vErr: any) {
+          alert('Error completing payment verification: ' + vErr.message);
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        }
+      },
+      modal: {
+        ondismiss: function () {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        }
+      }
+    };
+
+    const paymentInstance = new rzp(options);
+    paymentInstance.open();
+
+  } catch (err: any) {
+    alert('Checkout error: ' + err.message);
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  }
+}
+
 // Bind handlers to global window for inline HTML onclick/onsubmit attributes
 if (typeof window !== 'undefined') {
   const w = window as any;
@@ -343,6 +458,7 @@ if (typeof window !== 'undefined') {
   w.setLandingStep = setLandingStep;
   w.setLandingBilling = setLandingBilling;
   w.toggleFaq = toggleFaq;
+  w.handleLandingPayment = handleLandingPayment;
 
   window.addEventListener('DOMContentLoaded', () => {
     checkExistingSession();

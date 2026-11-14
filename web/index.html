@@ -7,6 +7,7 @@
   <meta name="description" content="more space for your mac, without buying a new one. terabytes in finder, zero bytes on your disk, backed by your private cloudflare r2 bucket."/>
   <link rel="icon" type="image/png" href="/favicon.png"/>
   <link rel="apple-touch-icon" href="/icon.png"/>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <style>
     :root {
       --s-1: 4px;
@@ -797,9 +798,9 @@
           </li>
         </ul>
 
-        <a href="#auth-section" class="btn-pill btn-dark" style="display:block; width:100%; text-decoration:none; text-align:center; padding:14px 20px; font-size:14px; font-weight:600;">
+        <button type="button" id="landingPlanSubmitBtn" onclick="handleLandingPayment()" class="btn-pill btn-dark" style="display:block; width:100%; text-decoration:none; text-align:center; padding:14px 20px; font-size:14px; font-weight:600; border:none; cursor:pointer;">
           continue to payment
-        </a>
+        </button>
       </div>
     </section>
 

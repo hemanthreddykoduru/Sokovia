@@ -513,11 +513,115 @@ function renderPlanUI(): void {
   });
 }
 
-export function handleContinueToPayment(): void {
+export async function handleContinueToPayment(): Promise<void> {
   const tier = PLAN_TIERS[currentPlanStep];
-  const cycleText = currentBillingCycle === 'yearly' ? 'billed annually' : 'billed monthly';
-  const price = currentBillingCycle === 'yearly' ? `$${tier.yearlyTotal}/yr` : `$${tier.monthlyPrice}/mo`;
-  alert(`Upgrade to ${tier.storage} plan (${price}, ${cycleText})\n\nRedirecting to checkout...`);
+  const submitBtn = document.getElementById('planSubmitBtn') as HTMLButtonElement | null;
+  const originalText = submitBtn ? submitBtn.textContent : 'continue to payment';
+
+  try {
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'opening secure checkout...';
+    }
+
+    const email = currentSessionUser?.email || localStorage.getItem('sokovia_email') || 'user@sokovia.dev';
+    const amountUsd = currentBillingCycle === 'yearly' ? tier.yearlyTotal : tier.monthlyPrice;
+    
+    // Convert USD to INR (at standard ~85 INR per USD) for Razorpay test gateway
+    const amountInr = Math.round(amountUsd * 85);
+
+    // Call our InsForge edge function to create Razorpay Order
+    const orderRes = await fetch('https://26u7vqfh.function2.insforge.app/create-razorpay-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        storage: tier.storage,
+        billingCycle: currentBillingCycle,
+        amountInr
+      })
+    });
+
+    const orderData = await orderRes.json();
+    if (!orderRes.ok || !orderData.orderId) {
+      throw new Error(orderData.error || 'Failed to initiate Razorpay checkout');
+    }
+
+    // Open Razorpay Standard Checkout Modal
+    const rzp = (window as any).Razorpay;
+    if (!rzp) {
+      throw new Error('Razorpay SDK failed to load. Please disable ad-blockers or refresh.');
+    }
+
+    const options = {
+      key: orderData.keyId,
+      amount: orderData.amount,
+      currency: orderData.currency || 'INR',
+      name: 'Sokovia',
+      description: `${tier.storage} Plan (${currentBillingCycle}) - ₹${amountInr.toLocaleString()}`,
+      image: '/favicon.png',
+      order_id: orderData.orderId,
+      prefill: {
+        email: email,
+        name: currentSessionUser?.name || ''
+      },
+      theme: {
+        color: '#000000'
+      },
+      handler: async function (response: any) {
+        try {
+          if (submitBtn) submitBtn.textContent = 'verifying payment...';
+
+          const verifyRes = await fetch('https://26u7vqfh.function2.insforge.app/verify-razorpay-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              email,
+              storage: tier.storage,
+              billingCycle: currentBillingCycle,
+              amountInr
+            })
+          });
+
+          const verifyData = await verifyRes.json();
+          if (verifyRes.ok && verifyData.success) {
+            alert(`🎉 Success! Your payment of ₹${amountInr.toLocaleString()} was successful.\n\nYour Sokovia ${tier.storage} plan is now active!`);
+            window.location.reload();
+          } else {
+            alert('Payment received, but verification returned an error: ' + (verifyData.error || 'Unknown error'));
+          }
+        } catch (vErr: any) {
+          alert('Error completing payment verification: ' + vErr.message);
+        } finally {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        }
+      },
+      modal: {
+        ondismiss: function () {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+          }
+        }
+      }
+    };
+
+    const paymentInstance = new rzp(options);
+    paymentInstance.open();
+
+  } catch (err: any) {
+    alert('Checkout error: ' + err.message);
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  }
 }
 
 // Bind handlers to global window for inline HTML onclick/onsubmit attributes
