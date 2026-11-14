@@ -322,6 +322,13 @@ function renderLandingPlanUI(): void {
   });
 }
 
+export function toggleFaq(el: HTMLElement): void {
+  const item = el.closest('.faq-item');
+  if (item) {
+    item.classList.toggle('open');
+  }
+}
+
 // Bind handlers to global window for inline HTML onclick/onsubmit attributes
 if (typeof window !== 'undefined') {
   const w = window as any;
@@ -335,6 +342,7 @@ if (typeof window !== 'undefined') {
   w.updateLandingSlider = updateLandingSlider;
   w.setLandingStep = setLandingStep;
   w.setLandingBilling = setLandingBilling;
+  w.toggleFaq = toggleFaq;
 
   window.addEventListener('DOMContentLoaded', () => {
     checkExistingSession();

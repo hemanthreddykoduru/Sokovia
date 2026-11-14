@@ -591,6 +591,51 @@
       margin-bottom: 12px;
     }
 
+    /* FAQ Accordion Section */
+    .faq-wrap {
+      max-width: 680px;
+      margin: 0 auto 60px;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 18px 0;
+    }
+    .faq-question {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      letter-spacing: -0.01em;
+      user-select: none;
+    }
+    .faq-question:hover {
+      color: #333333;
+    }
+    .faq-icon {
+      font-size: 18px;
+      color: var(--ink-3);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+      margin-left: 12px;
+    }
+    .faq-item.open .faq-icon {
+      transform: rotate(45deg);
+      color: var(--ink);
+    }
+    .faq-answer {
+      font-size: 14px;
+      color: var(--ink-2);
+      line-height: 1.6;
+      margin-top: 10px;
+      display: none;
+    }
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
     footer {
       border-top: 1px solid var(--border);
       padding: var(--s-7) var(--gutter);
@@ -616,6 +661,7 @@
       <span class="nav-logo"><span class="nav-logo-icon"><img src="/favicon.png" alt="Sokovia"/></span>sokovia</span>
       <a href="#how" class="active">how it works</a>
       <a href="#pricing">plans</a>
+      <a href="#faq">faq</a>
       <a href="#auth-section" id="navAuthBtn">login / sign up</a>
       <a href="/downloads/Sokovia-macOS.zip" download>download for mac</a>
     </nav>
@@ -754,6 +800,125 @@
         <a href="#auth-section" class="btn-pill btn-dark" style="display:block; width:100%; text-decoration:none; text-align:center; padding:14px 20px; font-size:14px; font-weight:600;">
           continue to payment
         </a>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section" id="faq" style="padding-top: 20px; padding-bottom: 60px;">
+      <div style="text-align: center; margin-bottom: 32px;">
+        <h2 style="font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px;">questions, answered.</h2>
+      </div>
+
+      <div class="faq-wrap">
+        <div class="faq-item open">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>what is sokovia?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            a new drive in finder with terabytes of space. your files look and open like normal, but they live in the cloud, so they take no space on your mac.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>how can a file open instantly if it isn’t on my mac?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            sokovia only grabs the part your app needs, right when it needs it. a video starts as soon as the first seconds arrive. skip ahead, and it grabs just that part.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>how is sokovia different from icloud drive, dropbox or google drive?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            icloud and dropbox download the whole file before you can open it, and then it takes up space on your mac. sokovia only grabs the part you use, so big files open fast and your mac stays free. google drive can stream too, but sokovia is made natively just for the mac.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>will it work with my apps?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            yes. sokovia is a normal drive, so your apps just see it. we tested davinci resolve, final cut pro, imovie, capcut, quicktime and preview, and ai tools like claude and chatgpt. nothing extra to install.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>can i see my files on my phone?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            yes. open sokovia in any browser, on a phone or any computer, to see, open and share your files.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>do i need an internet connection?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            for most files, yes. new files you add wait on your mac in local cache and upload automatically when you’re online.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>where are my files stored?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            on cloudflare r2, cloudflare’s cloud storage with zero-egress fees. your files are encrypted on your mac before they leave it, so cloudflare only ever stores locked data it can’t open.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>how does sokovia protect my files?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            your files are end-to-end encrypted on your mac before they leave it. only you hold the key, so not even we can open them. deleted files stay for 30 days, and edits on two macs never overwrite each other.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>what happens if i stop paying?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            we never delete your files. you can always open and download them—you just can’t add new ones until you pick a plan again.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>can i get a refund?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            yes. if sokovia doesn’t work for you, ask within 3 days of your first payment and we’ll refund it in full. renewals aren’t refunded, but you can cancel any time.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFaq(this)">
+            <span>what are the system requirements?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            any mac with macOS 14 Sonoma, macOS 15 Sequoia, or newer. sokovia sits right inside macOS Finder with zero extra kernel extensions.
+          </div>
+        </div>
       </div>
     </section>
 
