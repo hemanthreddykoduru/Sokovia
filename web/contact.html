@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Contact Us · Sokovia</title>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <style>
+    :root {
+      --bg: #fbfbfd;
+      --card-bg: #ffffff;
+      --ink: #1d1d1f;
+      --ink-2: #6e6e73;
+      --border: rgba(0, 0, 0, 0.08);
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 40px 20px 80px;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 48px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      margin-bottom: 32px;
+    }
+    .brand img { width: 22px; height: 22px; border-radius: 6px; }
+    h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.02em; }
+    .updated { font-size: 13px; color: var(--ink-2); margin-bottom: 32px; }
+    h2 { font-size: 18px; font-weight: 600; margin: 28px 0 10px; color: #000; }
+    p { margin-bottom: 16px; color: #333; }
+    .contact-card {
+      background: #f9f9fb;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    .contact-row {
+      display: flex;
+      margin-bottom: 12px;
+    }
+    .contact-row:last-child { margin-bottom: 0; }
+    .contact-label {
+      width: 140px;
+      font-weight: 600;
+      color: var(--ink-2);
+      font-size: 14px;
+    }
+    .contact-val {
+      flex: 1;
+      color: #000;
+      font-size: 14px;
+    }
+    a { color: #0071e3; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="brand">
+      <img src="/favicon.png" alt="Sokovia"/>
+      <span>sokovia</span>
+    </a>
+
+    <h1>Contact Us</h1>
+    <div class="updated">We are here to help with any questions, support, or billing queries.</div>
+
+    <div class="contact-card">
+      <div class="contact-row">
+        <div class="contact-label">Legal Name:</div>
+        <div class="contact-val">Hemanth Reddy Koduru</div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-label">Product Name:</div>
+        <div class="contact-val">Sokovia (sokovia.hemanthreddy.tech)</div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-label">Support Email:</div>
+        <div class="contact-val"><a href="mailto:reddykoduruhemanth@gmail.com">reddykoduruhemanth@gmail.com</a></div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-label">Response Time:</div>
+        <div class="contact-val">Within 24 hours on all business days</div>
+      </div>
+      <div class="contact-row">
+        <div class="contact-label">Operating Address:</div>
+        <div class="contact-val">Hyderabad, Telangana, India</div>
+      </div>
+    </div>
+
+    <h2>Customer Support & Feedback</h2>
+    <p>For any inquiries regarding:</p>
+    <ul>
+      <li>Account setup and macOS Finder mounting.</li>
+      <li>Subscription upgrades, renewals, and invoice receipts.</li>
+      <li>Technical issues with video streaming or file syncing.</li>
+      <li>Cancellation or refund requests.</li>
+    </ul>
+    <p>Please email us directly at <a href="mailto:reddykoduruhemanth@gmail.com">reddykoduruhemanth@gmail.com</a> and our team will get back to you promptly.</p>
+  </div>
+</body>
+</html>
