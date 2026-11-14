@@ -416,6 +416,101 @@ export async function handleSignOut(): Promise<void> {
   window.location.replace('/');
 }
 
+// Plan Tiers configuration matching interactive slider
+export interface PlanTier {
+  storage: string;
+  monthlyPrice: number;
+  yearlyPricePerMonth: number;
+  yearlyTotal: number;
+}
+
+export const PLAN_TIERS: PlanTier[] = [
+  { storage: '500 GB', monthlyPrice: 5, yearlyPricePerMonth: 4.15, yearlyTotal: 50 },
+  { storage: '1 TB', monthlyPrice: 10, yearlyPricePerMonth: 8.30, yearlyTotal: 100 },
+  { storage: '2 TB', monthlyPrice: 20, yearlyPricePerMonth: 16.60, yearlyTotal: 200 },
+  { storage: '3 TB', monthlyPrice: 30, yearlyPricePerMonth: 24.90, yearlyTotal: 300 },
+  { storage: '5 TB', monthlyPrice: 50, yearlyPricePerMonth: 41.50, yearlyTotal: 500 },
+  { storage: '10 TB', monthlyPrice: 100, yearlyPricePerMonth: 83.00, yearlyTotal: 1000 },
+  { storage: '20 TB', monthlyPrice: 200, yearlyPricePerMonth: 166.00, yearlyTotal: 2000 },
+  { storage: '30 TB', monthlyPrice: 300, yearlyPricePerMonth: 249.00, yearlyTotal: 3000 },
+];
+
+let currentPlanStep = 0;
+let currentBillingCycle: 'monthly' | 'yearly' = 'monthly';
+
+export function updatePlanSlider(stepValue: string | number): void {
+  const step = parseInt(stepValue.toString(), 10);
+  currentPlanStep = Math.max(0, Math.min(step, PLAN_TIERS.length - 1));
+  renderPlanUI();
+}
+
+export function setPlanStep(step: number): void {
+  currentPlanStep = Math.max(0, Math.min(step, PLAN_TIERS.length - 1));
+  const slider = document.getElementById('planStorageSlider') as HTMLInputElement | null;
+  if (slider) slider.value = currentPlanStep.toString();
+  renderPlanUI();
+}
+
+export function setPlanBilling(cycle: 'monthly' | 'yearly'): void {
+  currentBillingCycle = cycle;
+  const btnMonthly = document.getElementById('btnPlanMonthly');
+  const btnYearly = document.getElementById('btnPlanYearly');
+  if (btnMonthly && btnYearly) {
+    if (cycle === 'monthly') {
+      btnMonthly.classList.add('active');
+      btnYearly.classList.remove('active');
+    } else {
+      btnYearly.classList.add('active');
+      btnMonthly.classList.remove('active');
+    }
+  }
+  renderPlanUI();
+}
+
+function renderPlanUI(): void {
+  const tier = PLAN_TIERS[currentPlanStep];
+  const priceDisplay = document.getElementById('planPriceDisplay');
+  const storageDisplay = document.getElementById('planStorageDisplay');
+  const billingPeriod = document.getElementById('planBillingPeriod');
+  const slider = document.getElementById('planStorageSlider') as HTMLInputElement | null;
+
+  if (slider) {
+    const percent = (currentPlanStep / (PLAN_TIERS.length - 1)) * 100;
+    slider.style.background = `linear-gradient(to right, #000000 0%, #000000 ${percent}%, #e5e5ea ${percent}%, #e5e5ea 100%)`;
+  }
+
+  if (storageDisplay) {
+    storageDisplay.textContent = tier.storage;
+  }
+
+  if (priceDisplay && billingPeriod) {
+    if (currentBillingCycle === 'monthly') {
+      priceDisplay.textContent = `$${tier.monthlyPrice}`;
+      billingPeriod.textContent = '/ month';
+    } else {
+      priceDisplay.textContent = `$${Math.round(tier.yearlyPricePerMonth)}`;
+      billingPeriod.textContent = `/ month (billed $${tier.yearlyTotal}/yr)`;
+    }
+  }
+
+  // Update tick highlight
+  const ticks = document.querySelectorAll('#planTicksContainer span');
+  ticks.forEach((tick, idx) => {
+    if (idx === currentPlanStep) {
+      tick.classList.add('active');
+    } else {
+      tick.classList.remove('active');
+    }
+  });
+}
+
+export function handleContinueToPayment(): void {
+  const tier = PLAN_TIERS[currentPlanStep];
+  const cycleText = currentBillingCycle === 'yearly' ? 'billed annually' : 'billed monthly';
+  const price = currentBillingCycle === 'yearly' ? `$${tier.yearlyTotal}/yr` : `$${tier.monthlyPrice}/mo`;
+  alert(`Upgrade to ${tier.storage} plan (${price}, ${cycleText})\n\nRedirecting to checkout...`);
+}
+
 // Bind handlers to global window for inline HTML onclick/onsubmit attributes
 if (typeof window !== 'undefined') {
   const w = window as any;
@@ -425,8 +520,13 @@ if (typeof window !== 'undefined') {
   w.handleDeleteFile = handleDeleteFile;
   w.handleSignOut = handleSignOut;
   w.dismissUnlockScreen = dismissUnlockScreen;
+  w.updatePlanSlider = updatePlanSlider;
+  w.setPlanStep = setPlanStep;
+  w.setPlanBilling = setPlanBilling;
+  w.handleContinueToPayment = handleContinueToPayment;
 
   window.addEventListener('DOMContentLoaded', () => {
     initDashboard();
+    renderPlanUI();
   });
 }
