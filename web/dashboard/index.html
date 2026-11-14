@@ -881,6 +881,10 @@
           <button type="button" class="plan-toggle-btn" id="btnPlanYearly" onclick="setPlanBilling('yearly')">yearly <span class="plan-discount-badge">-17%</span></button>
         </div>
 
+        <div id="planYearlySubtext" style="display: none; font-size: 13px; color: var(--ink-2); margin-top: -16px; margin-bottom: 24px;">
+          same as <span id="planYearlyPerMonthText">$4.17/month</span>, paid once a year.
+        </div>
+
         <div class="plan-slider-container">
           <input type="range" class="plan-slider" id="planStorageSlider" min="0" max="7" value="0" step="1" oninput="updatePlanSlider(this.value)"/>
           <div class="plan-ticks" id="planTicksContainer">

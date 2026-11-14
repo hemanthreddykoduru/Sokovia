@@ -420,19 +420,19 @@ export async function handleSignOut(): Promise<void> {
 export interface PlanTier {
   storage: string;
   monthlyPrice: number;
-  yearlyPricePerMonth: number;
   yearlyTotal: number;
+  yearlyEquivalentStr: string;
 }
 
 export const PLAN_TIERS: PlanTier[] = [
-  { storage: '500 GB', monthlyPrice: 5, yearlyPricePerMonth: 4.15, yearlyTotal: 50 },
-  { storage: '1 TB', monthlyPrice: 10, yearlyPricePerMonth: 8.30, yearlyTotal: 100 },
-  { storage: '2 TB', monthlyPrice: 20, yearlyPricePerMonth: 16.60, yearlyTotal: 200 },
-  { storage: '3 TB', monthlyPrice: 30, yearlyPricePerMonth: 24.90, yearlyTotal: 300 },
-  { storage: '5 TB', monthlyPrice: 50, yearlyPricePerMonth: 41.50, yearlyTotal: 500 },
-  { storage: '10 TB', monthlyPrice: 100, yearlyPricePerMonth: 83.00, yearlyTotal: 1000 },
-  { storage: '20 TB', monthlyPrice: 200, yearlyPricePerMonth: 166.00, yearlyTotal: 2000 },
-  { storage: '30 TB', monthlyPrice: 300, yearlyPricePerMonth: 249.00, yearlyTotal: 3000 },
+  { storage: '500 GB', monthlyPrice: 5, yearlyTotal: 50, yearlyEquivalentStr: '$4.17' },
+  { storage: '1 TB', monthlyPrice: 10, yearlyTotal: 100, yearlyEquivalentStr: '$8.33' },
+  { storage: '2 TB', monthlyPrice: 20, yearlyTotal: 200, yearlyEquivalentStr: '$16.67' },
+  { storage: '3 TB', monthlyPrice: 30, yearlyTotal: 300, yearlyEquivalentStr: '$25' },
+  { storage: '5 TB', monthlyPrice: 50, yearlyTotal: 500, yearlyEquivalentStr: '$41.67' },
+  { storage: '10 TB', monthlyPrice: 100, yearlyTotal: 1000, yearlyEquivalentStr: '$83.33' },
+  { storage: '20 TB', monthlyPrice: 200, yearlyTotal: 2000, yearlyEquivalentStr: '$166.67' },
+  { storage: '30 TB', monthlyPrice: 300, yearlyTotal: 3000, yearlyEquivalentStr: '$250' },
 ];
 
 let currentPlanStep = 0;
@@ -472,6 +472,8 @@ function renderPlanUI(): void {
   const priceDisplay = document.getElementById('planPriceDisplay');
   const storageDisplay = document.getElementById('planStorageDisplay');
   const billingPeriod = document.getElementById('planBillingPeriod');
+  const yearlySubtext = document.getElementById('planYearlySubtext');
+  const yearlyPerMonthText = document.getElementById('planYearlyPerMonthText');
   const slider = document.getElementById('planStorageSlider') as HTMLInputElement | null;
 
   if (slider) {
@@ -485,11 +487,18 @@ function renderPlanUI(): void {
 
   if (priceDisplay && billingPeriod) {
     if (currentBillingCycle === 'monthly') {
-      priceDisplay.textContent = `$${tier.monthlyPrice}`;
+      priceDisplay.textContent = `$${tier.monthlyPrice.toLocaleString()}`;
       billingPeriod.textContent = '/ month';
+      if (yearlySubtext) yearlySubtext.style.display = 'none';
     } else {
-      priceDisplay.textContent = `$${Math.round(tier.yearlyPricePerMonth)}`;
-      billingPeriod.textContent = `/ month (billed $${tier.yearlyTotal}/yr)`;
+      priceDisplay.textContent = `$${tier.yearlyTotal.toLocaleString()}`;
+      billingPeriod.textContent = '/ year';
+      if (yearlySubtext) {
+        yearlySubtext.style.display = 'block';
+        if (yearlyPerMonthText) {
+          yearlyPerMonthText.textContent = `${tier.yearlyEquivalentStr}/month`;
+        }
+      }
     }
   }
 
