@@ -94,8 +94,19 @@ public final class MountManager: @unchecked Sendable {
     }
 
     public func openInFinder(mountPath: String = "/Volumes/Sokovia") {
-        let target = getMountedVolumePath() ?? mountPath
-        let url = URL(fileURLWithPath: target)
-        NSWorkspace.shared.open(url)
+        let script = """
+        tell application "Finder"
+            activate
+            if exists (disk "Sokovia") then
+                open disk "Sokovia"
+            else
+                open (POSIX file "/Volumes/Sokovia")
+            end if
+        end tell
+        """
+        let proc = Process()
+        proc.launchPath = "/usr/bin/osascript"
+        proc.arguments = ["-e", script]
+        try? proc.run()
     }
 }
