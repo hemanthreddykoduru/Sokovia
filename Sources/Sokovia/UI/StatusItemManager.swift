@@ -157,14 +157,14 @@ public final class StatusItemManager: NSObject, NSMenuDelegate {
     @objc private func accountClicked() {
         let email = AppState.shared.config.userEmail
         let encodedEmail = email.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let targetURL = "https://26u7vqfh.insforge.site/dashboard?email=\(encodedEmail)"
+        let targetURL = "https://sokovia.hemanthreddy.tech/dashboard?email=\(encodedEmail)"
         if let url = URL(string: targetURL) {
             NSWorkspace.shared.open(url)
         }
     }
 
     @objc private func loginClicked() {
-        if let url = URL(string: "https://26u7vqfh.insforge.site/") {
+        if let url = URL(string: "https://sokovia.hemanthreddy.tech/login") {
             NSWorkspace.shared.open(url)
         }
     }
