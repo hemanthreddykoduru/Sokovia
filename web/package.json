@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "esbuild src/index.ts src/dashboard.ts --bundle --outdir=dist --format=iife --external:crypto --minify && mkdir -p dashboard && cp dashboard.html dashboard/index.html",
+    "build": "esbuild src/index.ts src/dashboard.ts --bundle --outdir=dist --format=iife --external:crypto --minify && esbuild node_modules/@insforge/sdk/dist/index.mjs --bundle --format=iife --global-name=InsForgeSDK --outfile=dist/insforge-sdk.js --external:crypto --minify && mkdir -p dashboard && cp dashboard.html dashboard/index.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
