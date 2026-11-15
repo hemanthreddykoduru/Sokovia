@@ -206,20 +206,27 @@
     /* Finder Window Mockup */
     .finder-container {
       margin: var(--s-6) auto 0;
-      background: #ffffff;
-      border-radius: 14px;
-      border: 1px solid rgba(0, 0, 0, 0.12);
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(40px) saturate(200%);
+      -webkit-backdrop-filter: blur(40px) saturate(200%);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 32px 64px -16px rgba(24, 48, 89, 0.14),
+                  0 0 0 1px rgba(255, 255, 255, 0.6),
+                  inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
+                  inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.02);
       overflow: hidden;
       text-align: left;
     }
     .finder-titlebar {
-      height: 38px;
-      background: #f6f5f3;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      height: 42px;
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.7);
       display: flex;
       align-items: center;
-      padding: 0 14px;
+      padding: 0 18px;
       position: relative;
     }
     .window-dots { display: flex; gap: 7px; }
@@ -245,9 +252,11 @@
       min-height: 320px;
     }
     .finder-nav {
-      background: #f9f9fa;
-      border-right: 1px solid rgba(0, 0, 0, 0.06);
-      padding: 16px 10px;
+      background: rgba(245, 248, 253, 0.45);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255, 255, 255, 0.65);
+      padding: 18px 12px;
       font-size: 12.5px;
       color: var(--ink-2);
     }
@@ -269,17 +278,20 @@
       cursor: default;
     }
     .finder-nav-item.active {
-      background: #0071e3;
+      background: linear-gradient(135deg, #0077ed 0%, #005bb5 100%);
       color: #fff;
+      box-shadow: 0 4px 12px rgba(0, 113, 227, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4);
     }
     .finder-nav-item.active .eject-btn { color: #fff; }
     .eject-btn { font-size: 11px; color: var(--ink-3); }
     .finder-grid {
-      padding: 20px 24px;
+      padding: 24px 28px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
-      gap: 20px 16px;
-      background: #fff;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 22px 18px;
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
     .finder-file {
       display: flex;
@@ -290,15 +302,23 @@
       cursor: default;
     }
     .file-thumb {
-      width: 52px;
-      height: 52px;
-      border-radius: 8px;
-      background: #f0f0f2;
-      border: 1px solid rgba(0, 0, 0, 0.06);
+      width: 54px;
+      height: 54px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 4px 12px -2px rgba(24, 48, 89, 0.08), inset 0 1px 1px rgba(255, 255, 255, 1);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-size: 26px;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
+    }
+    .finder-file:hover .file-thumb {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 8px 18px -3px rgba(0, 113, 227, 0.18), inset 0 1px 1px rgba(255, 255, 255, 1);
     }
     .file-name {
       font-size: 11.5px;
@@ -525,11 +545,16 @@
     .pricing-card-wrap {
       max-width: 620px;
       margin: 0 auto 60px;
-      background: var(--card-bg);
-      border-radius: 24px;
-      padding: 36px 32px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(36px) saturate(190%);
+      -webkit-backdrop-filter: blur(36px) saturate(190%);
+      border-radius: 28px;
+      padding: 40px 36px;
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow: 0 30px 60px -15px rgba(24, 48, 89, 0.12),
+                  0 0 0 1px rgba(255, 255, 255, 0.7),
+                  inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.95),
+                  inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.02);
       text-align: center;
     }
     .landing-plan-price-row {
