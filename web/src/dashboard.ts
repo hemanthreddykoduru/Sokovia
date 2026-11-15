@@ -388,6 +388,100 @@ export async function handleRecoveryKeySubmit(e: Event): Promise<void> {
   }
 }
 
+export function downloadRecoveryKeyPdf(): void {
+  const code = (currentUserRecoveryKey || document.getElementById('recoveryKeyCodeDisplay')?.textContent || '').trim();
+  const dateStr = (document.getElementById('recoveryKeyDateDisplay')?.textContent || '').trim() ||
+    new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  if (!code) return;
+
+  const pdfBytes = generateHelumiRecoveryPdf(code, dateStr);
+  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Sokovia-Recovery-Key.pdf';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function generateHelumiRecoveryPdf(key: string, dateStr: string): Uint8Array {
+  // Helumi layout matches 540 x 246 pt
+  const parts = key.split('-');
+  let line1 = key;
+  let line2 = '';
+  if (parts.length >= 9) {
+    line1 = parts.slice(0, 9).join('-') + '-';
+    line2 = parts.slice(9).join('-');
+  }
+
+  const title = 'Sokovia Recovery Key';
+  const footer = 'Keep this safe. It opens your Sokovia files.';
+
+  let stream = 'BT\n';
+  stream += '/F1 22 Tf\n48 177 Td\n(' + title.replace(/([()\\])/g, '\\$1') + ') Tj\n';
+  stream += '0 -38 Td\n/F2 15 Tf\n(' + line1.replace(/([()\\])/g, '\\$1') + ') Tj\n';
+  if (line2) {
+    stream += '0 -19 Td\n(' + line2.replace(/([()\\])/g, '\\$1') + ') Tj\n';
+    stream += '0 -35 Td\n';
+  } else {
+    stream += '0 -54 Td\n';
+  }
+  stream += '/F1 13 Tf\n0.5 0.5 0.5 rg\n(' + dateStr.replace(/([()\\])/g, '\\$1') + ') Tj\n';
+  stream += '0 -34 Td\n0 0 0 rg\n(' + footer.replace(/([()\\])/g, '\\$1') + ') Tj\n';
+  stream += 'ET\n';
+
+  const encoder = new TextEncoder();
+  const streamBytes = encoder.encode(stream);
+  const streamLen = streamBytes.length;
+
+  const chunks: Uint8Array[] = [];
+  const offsets: number[] = [];
+  let currentOffset = 0;
+
+  function pushChunk(bytes: Uint8Array) {
+    chunks.push(bytes);
+    currentOffset += bytes.length;
+  }
+
+  function addObj(contentStr: string, bodyBytes?: Uint8Array) {
+    offsets.push(currentOffset);
+    pushChunk(encoder.encode(contentStr));
+    if (bodyBytes) {
+      pushChunk(bodyBytes);
+      pushChunk(encoder.encode('\nendstream\nendobj\n'));
+    }
+  }
+
+  pushChunk(encoder.encode('%PDF-1.4\n%\xe2\xe3\xcf\xd3\n'));
+
+  addObj('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+  addObj('2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n');
+  addObj('3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 540 246] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>\nendobj\n');
+  addObj('4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n');
+  addObj('5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>\nendobj\n');
+  addObj(`6 0 obj\n<< /Length ${streamLen} >>\nstream\n`, streamBytes);
+
+  const xrefOffset = currentOffset;
+  let xref = `xref\n0 ${offsets.length + 1}\n0000000000 65535 f \n`;
+  for (const off of offsets) {
+    xref += off.toString().padStart(10, '0') + ' 00000 n \n';
+  }
+  xref += `trailer\n<< /Size ${offsets.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  pushChunk(encoder.encode(xref));
+
+  const totalLen = chunks.reduce((acc, c) => acc + c.length, 0);
+  const result = new Uint8Array(totalLen);
+  let pos = 0;
+  for (const c of chunks) {
+    result.set(c, pos);
+    pos += c.length;
+  }
+  return result;
+}
+
 export function copyRecoveryKey(): void {
   const code = currentUserRecoveryKey || document.getElementById('recoveryKeyCodeDisplay')?.textContent || '';
   if (code && navigator.clipboard) {
@@ -1056,6 +1150,7 @@ if (typeof window !== 'undefined') {
   w.showRecoveryKeyModal = showRecoveryKeyModal;
   w.dismissRecoveryKeyModal = dismissRecoveryKeyModal;
   w.copyRecoveryKey = copyRecoveryKey;
+  w.downloadRecoveryKeyPdf = downloadRecoveryKeyPdf;
   w.promptRecoveryKeyUnlock = promptRecoveryKeyUnlock;
   w.closeEnterRecoveryKeyModal = closeEnterRecoveryKeyModal;
   w.handleRecoveryKeySubmit = handleRecoveryKeySubmit;

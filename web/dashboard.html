@@ -1214,7 +1214,11 @@
         Keep this safe. It opens your Sokovia files.
       </p>
 
-      <div style="display: flex; gap: 12px; justify-content: flex-end; align-items: center;">
+      <div style="display: flex; gap: 12px; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
+        <button type="button" onclick="downloadRecoveryKeyPdf()" class="btn-pill-sm" id="btnDownloadRecoveryPdf" style="height: 42px; padding: 0 20px; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          download pdf
+        </button>
         <button type="button" onclick="copyRecoveryKey()" class="btn-pill-sm" id="btnCopyRecovery" style="height: 42px; padding: 0 20px; font-size: 13.5px;">
           copy key
         </button>
