@@ -97,11 +97,15 @@ public final class MountManager: @unchecked Sendable {
         let script = """
         tell application "Finder"
             activate
-            if exists (disk "Sokovia") then
-                open disk "Sokovia"
-            else
-                open (POSIX file "/Volumes/Sokovia")
-            end if
+            try
+                open folder "Sokovia" of disk "sokovia"
+            on error
+                try
+                    open (POSIX file "\(mountPath)")
+                on error
+                    open disk "Sokovia"
+                end try
+            end try
         end tell
         """
         let proc = Process()
