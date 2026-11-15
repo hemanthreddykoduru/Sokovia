@@ -273,17 +273,9 @@ export async function initRecoveryKeyFlow(forceShow = false): Promise<void> {
     // Check if user has already acknowledged their key
     const hasAcknowledged = localStorage.getItem('sokovia_recovery_acked_' + currentUserEmail) === 'true';
 
-    // Show automatically and trigger PDF download on first account creation
+    // Show recovery key modal on first account creation (user clicks "download pdf" when ready)
     if (forceShow || !hasAcknowledged) {
       showRecoveryKeyModal();
-      // Automatically download PDF for user on first creation (just like Helumi)
-      const hasAutoDownloaded = localStorage.getItem('sokovia_recovery_downloaded_' + currentUserEmail) === 'true';
-      if (!hasAutoDownloaded) {
-        localStorage.setItem('sokovia_recovery_downloaded_' + currentUserEmail, 'true');
-        setTimeout(() => {
-          downloadRecoveryKeyPdf();
-        }, 500);
-      }
     }
   } catch (err) {
     console.warn('Recovery key flow notice:', err);
