@@ -31,13 +31,19 @@ export async function initDashboard(): Promise<void> {
       }
       if (insforge && insforge.auth) {
         const { data, error } = await insforge.auth.exchangeOAuthCode(oauthCode, storedVerifier || undefined);
-        if (!error && data && data.user) {
+        if (error) {
+          console.error('OAuth exchange error:', error);
+        } else if (data && data.user) {
           const userObj = data.user;
           const uEmail = userObj.email;
           const uName = (userObj as any).name || (userObj.profile && (userObj.profile as any).name) || '';
           localStorage.setItem('sokovia_session', JSON.stringify({ email: uEmail, name: uName, user: userObj }));
           document.cookie = "sokovia_user=" + encodeURIComponent(uEmail) + "; path=/; max-age=86400; SameSite=Lax";
           
+          // Clear verifier once safely exchanged
+          sessionStorage.removeItem('insforge_pkce_verifier');
+          localStorage.removeItem('insforge_pkce_verifier');
+
           // Auto-provision bucket if first time
           try {
             await fetch('https://26u7vqfh.function2.insforge.app/provision-user-bucket', {
@@ -117,7 +123,7 @@ export async function initDashboard(): Promise<void> {
 
   // If still not authenticated, redirect to login
   if (!authenticatedUser || !authenticatedUser.email) {
-    window.location.replace('/#auth-section');
+    window.location.replace('/login');
     return;
   }
 
