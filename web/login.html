@@ -7,18 +7,22 @@
   <link rel="icon" type="image/png" href="/favicon.png"/>
   <style>
     :root {
-      --bg: #000000;
-      --card-bg: #0c0c0e;
-      --ink: #ffffff;
-      --ink-2: #86868b;
-      --ink-3: #515154;
-      --border: rgba(255, 255, 255, 0.08);
+      --bg: #f5f5f7;
+      --card-bg: #ffffff;
+      --ink: #1d1d1f;
+      --ink-2: #6e6e73;
+      --ink-3: #86868b;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.14);
       --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
-      --btn-bg: #1c1c1e;
-      --btn-hover: #2c2c2e;
-      --input-bg: #161618;
-      --input-border: rgba(255, 255, 255, 0.12);
+      --btn-secondary: #f5f5f7;
+      --btn-secondary-hover: #e8e8ed;
+      --btn-primary: #0071e3;
+      --btn-primary-hover: #0077ed;
+      --input-bg: #ffffff;
+      --input-border: #d2d2d7;
       --input-focus: #0071e3;
+      --focus-ring: rgba(0, 113, 227, 0.2);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,257 +35,291 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 32px 20px;
       -webkit-font-smoothing: antialiased;
     }
 
     .login-container {
       width: 100%;
-      max-width: 1140px;
-      height: 680px;
+      max-width: 1040px;
+      min-height: 620px;
       display: grid;
-      grid-template-columns: 1.08fr 0.92fr;
-      gap: 32px;
-      align-items: center;
+      grid-template-columns: 1fr 1fr;
+      background: var(--card-bg);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
     }
 
-    /* LEFT SIDE: Ambient Cloud Canvas Visual */
-    .cloud-stage-card {
-      background: radial-gradient(circle at 50% 38%, #0d1522 0%, #080a0f 65%, #050507 100%);
-      border-radius: 28px;
-      height: 100%;
-      border: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+    /* LEFT SIDE: Clean Apple Mac Hardware / Cloud Drive Preview */
+    .showcase-panel {
+      background: linear-gradient(180deg, #fafafa 0%, #f2f2f5 100%);
+      border-right: 1px solid var(--border);
+      padding: 56px 48px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 36px 40px;
-    }
-
-    /* Interactive Cloud Canvas */
-    #cloudCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: auto;
-      z-index: 1;
-    }
-
-    /* Top Cloud Status Pill */
-    .cloud-top-status {
       position: relative;
-      z-index: 2;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      pointer-events: none;
     }
 
-    .cloud-badge {
+    .brand-mark-top {
       display: inline-flex;
       align-items: center;
+      gap: 10px;
+    }
+
+    .brand-mark-top img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+    }
+
+    .brand-mark-top span {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+    }
+
+    /* Center macOS Drive Volume card representation */
+    .drive-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin: 24px 0;
+    }
+
+    .mac-window-card {
+      width: 100%;
+      max-width: 360px;
+      background: #ffffff;
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .mac-window-titlebar {
+      height: 38px;
+      background: #fbfbfd;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
       gap: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      padding: 6px 14px;
-      border-radius: 999px;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .dot-close { background: #ff5f56; }
+    .dot-min { background: #ffbd2e; }
+    .dot-zoom { background: #27c93f; }
+
+    .window-title {
       font-size: 12px;
       font-weight: 500;
-      color: rgba(255, 255, 255, 0.85);
+      color: var(--ink-2);
+      margin: 0 auto;
+      transform: translateX(-18px);
+    }
+
+    .mac-window-body {
+      padding: 22px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .drive-icon-wrap {
+      width: 58px;
+      height: 58px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drive-icon-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .drive-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .drive-name {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 2px;
       letter-spacing: -0.01em;
     }
 
-    .cloud-badge-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #30d158;
-      box-shadow: 0 0 10px #30d158;
-      animation: pulseDot 2s infinite ease-in-out;
-    }
-
-    @keyframes pulseDot {
-      0%, 100% { opacity: 0.8; transform: scale(1); }
-      50% { opacity: 0.35; transform: scale(0.85); }
-    }
-
-    .cloud-region-label {
-      font-size: 11px;
+    .drive-format {
+      font-size: 12px;
       color: var(--ink-3);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      margin-bottom: 8px;
     }
 
-    /* Center floating hero drive icon over canvas */
-    .cloud-center-halo {
-      position: absolute;
-      top: 42%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      pointer-events: none;
-      text-align: center;
-    }
-
-    .center-glass-icon {
-      width: 110px;
-      height: 110px;
-      border-radius: 26px;
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 20px 50px rgba(0, 113, 227, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-      transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
-    }
-
-    .center-glass-icon img {
-      width: 72px;
-      height: 72px;
-      object-fit: contain;
-      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
-    }
-
-    .cloud-live-telemetry {
-      display: flex;
-      gap: 16px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 11.5px;
-      color: rgba(255, 255, 255, 0.6);
-      background: rgba(0, 0, 0, 0.4);
-      padding: 6px 14px;
+    .drive-bar-track {
+      width: 100%;
+      height: 5px;
+      background: #e5e5ea;
       border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+      margin-bottom: 6px;
     }
 
-    .cloud-live-telemetry span strong {
-      color: #70b7ff;
+    .drive-bar-fill {
+      width: 32%;
+      height: 100%;
+      background: var(--btn-primary);
+      border-radius: 999px;
+    }
+
+    .drive-capacity-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--ink-2);
       font-weight: 500;
     }
 
-    /* Bottom Info Narrative */
-    .cloud-bottom-narrative {
-      position: relative;
-      z-index: 2;
-      pointer-events: none;
+    /* System Status Row in Window */
+    .status-strip {
+      border-top: 1px solid var(--border);
+      background: #fafafa;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--ink-2);
     }
 
-    .cloud-headline {
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+      color: #1d1d1f;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #34c759;
+    }
+
+    .status-pill {
+      font-size: 10.5px;
+      color: var(--ink-3);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    /* Showcase Text */
+    .showcase-text-wrap {
+      max-width: 380px;
+    }
+
+    .showcase-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .showcase-desc {
+      font-size: 13.5px;
+      color: var(--ink-2);
+      line-height: 1.45;
+    }
+
+    /* RIGHT SIDE: Clean Sign In Form */
+    .auth-panel {
+      padding: 56px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .auth-header {
+      margin-bottom: 24px;
+    }
+
+    .auth-title {
       font-size: 24px;
       font-weight: 600;
       letter-spacing: -0.025em;
-      line-height: 1.3;
-      color: #ffffff;
-      margin-bottom: 8px;
+      color: var(--ink);
+      margin-bottom: 6px;
     }
 
-    .cloud-headline span {
-      background: linear-gradient(135deg, #70b7ff 0%, #ffffff 80%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .cloud-subtext {
-      font-size: 13.5px;
-      color: var(--ink-2);
-      line-height: 1.5;
-      max-width: 440px;
-    }
-
-    /* RIGHT SIDE: Auth Actions */
-    .auth-panel {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px 40px;
-      max-width: 420px;
-      margin: 0 auto;
-      width: 100%;
-      text-align: center;
-    }
-
-    .brand-icon {
-      width: 44px;
-      height: 44px;
-      margin-bottom: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .brand-icon img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    h1.auth-title {
-      font-size: 26px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
-    }
-
-    p.auth-subtitle {
+    .auth-subtitle {
       font-size: 14px;
       color: var(--ink-2);
-      margin-bottom: 24px;
     }
 
     .signed-out-badge {
       font-size: 12px;
       color: var(--ink-2);
-      background: rgba(255, 255, 255, 0.05);
-      padding: 6px 14px;
+      background: #f2f2f5;
+      padding: 5px 12px;
       border-radius: 999px;
-      margin-bottom: 20px;
+      display: inline-block;
+      margin-bottom: 18px;
       border: 1px solid var(--border);
-      display: none;
     }
 
-    .oauth-row {
+    /* OAuth Buttons */
+    .oauth-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      width: 100%;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 18px;
     }
 
     .btn-oauth {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 9px;
-      background: var(--btn-bg);
-      border: 1px solid var(--border);
-      color: #ffffff;
-      height: 44px;
-      border-radius: 999px;
+      gap: 8px;
+      background: var(--btn-secondary);
+      border: 1px solid var(--border-strong);
+      color: var(--ink);
+      height: 42px;
+      border-radius: 10px;
       font-size: 13.5px;
       font-weight: 500;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
       font-family: inherit;
+      transition: background 0.12s, border-color 0.12s;
     }
 
     .btn-oauth:hover {
-      background: var(--btn-hover);
-      border-color: rgba(255, 255, 255, 0.2);
+      background: var(--btn-secondary-hover);
+      border-color: rgba(0, 0, 0, 0.22);
     }
 
     .btn-oauth svg {
@@ -293,12 +331,11 @@
     .divider {
       display: flex;
       align-items: center;
-      width: 100%;
-      margin: 16px 0 20px;
+      margin: 14px 0 20px;
       color: var(--ink-3);
       font-size: 12px;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.05em;
     }
 
     .divider::before,
@@ -309,50 +346,62 @@
       background: var(--border);
     }
 
-    .divider::before { margin-right: 14px; }
-    .divider::after { margin-left: 14px; }
+    .divider::before { margin-right: 12px; }
+    .divider::after { margin-left: 12px; }
 
     /* Forms */
     .auth-form {
-      width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
-    .input-field-group {
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
       position: relative;
-      width: 100%;
     }
 
-    .input-field {
+    .field-label {
+      font-size: 12.5px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .text-input {
       width: 100%;
-      height: 48px;
+      height: 42px;
       background: var(--input-bg);
       border: 1px solid var(--input-border);
-      border-radius: 999px;
-      padding: 0 20px;
+      border-radius: 10px;
+      padding: 0 14px;
       font-size: 14px;
-      color: #ffffff;
+      color: var(--ink);
       outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
       font-family: inherit;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
-    .input-field:focus {
+    .text-input:focus {
       border-color: var(--input-focus);
-      box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.25);
+      box-shadow: 0 0 0 3px var(--focus-ring);
     }
 
-    .input-field::placeholder {
+    .text-input::placeholder {
       color: var(--ink-3);
     }
 
     .pwd-toggle-btn {
       position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
+      right: 12px;
       background: none;
       border: none;
       color: var(--ink-2);
@@ -360,97 +409,97 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 4px;
     }
 
     .pwd-toggle-btn:hover {
-      color: #ffffff;
+      color: var(--ink);
     }
 
     .btn-submit {
       width: 100%;
-      height: 48px;
-      border-radius: 999px;
-      background: #ffffff;
-      color: #000000;
-      font-size: 14.5px;
-      font-weight: 600;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--btn-primary);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 500;
       border: none;
       cursor: pointer;
       font-family: inherit;
-      transition: opacity 0.15s, transform 0.1s;
-      margin-top: 4px;
+      transition: background 0.15s;
+      margin-top: 6px;
     }
 
     .btn-submit:hover {
-      opacity: 0.92;
-    }
-
-    .btn-submit:active {
-      transform: scale(0.99);
+      background: var(--btn-primary-hover);
     }
 
     .btn-submit:disabled {
-      opacity: 0.5;
+      opacity: 0.55;
       cursor: not-allowed;
     }
 
-    .form-extras {
+    .form-nav-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 12.5px;
+      font-size: 13px;
       margin-top: 2px;
-      padding: 0 6px;
     }
 
-    .form-extras button, .form-extras a {
+    .form-nav-row button,
+    .form-nav-row a {
       background: none;
       border: none;
-      color: var(--ink-2);
+      color: var(--btn-primary);
       cursor: pointer;
       text-decoration: none;
-      font-size: 12.5px;
+      font-size: 13px;
+      font-family: inherit;
     }
 
-    .form-extras button:hover, .form-extras a:hover {
-      color: #ffffff;
+    .form-nav-row button:hover,
+    .form-nav-row a:hover {
       text-decoration: underline;
     }
 
-    .legal-footer {
+    .legal-note {
       font-size: 12px;
       color: var(--ink-3);
-      margin-top: 32px;
+      margin-top: 28px;
       line-height: 1.5;
     }
 
-    .legal-footer a {
+    .legal-note a {
       color: var(--ink-2);
       text-decoration: underline;
     }
 
-    .legal-footer a:hover {
-      color: #ffffff;
+    .legal-note a:hover {
+      color: var(--ink);
     }
 
-    .error-msg {
-      color: #ff453a;
+    .error-box {
+      background: #fff2f2;
+      border: 1px solid #ffd1d1;
+      color: #d70015;
+      padding: 8px 12px;
+      border-radius: 8px;
       font-size: 12.5px;
-      margin-top: 8px;
       display: none;
-      text-align: center;
     }
 
-    @media (max-width: 860px) {
+    @media (max-width: 840px) {
       .login-container {
         grid-template-columns: 1fr;
-        height: auto;
+        max-width: 440px;
       }
-      .cloud-stage-card {
+      .showcase-panel {
         display: none;
       }
       .auth-panel {
-        padding: 40px 16px;
+        padding: 40px 24px;
       }
     }
   </style>
@@ -459,53 +508,70 @@
 
   <div class="login-container">
     
-    <!-- LEFT: Interactive Ambient Cloud Canvas (Zero fake testimonials) -->
-    <div class="cloud-stage-card" id="cloudStageCard">
-      <canvas id="cloudCanvas"></canvas>
-
-      <!-- Top status & telemetry -->
-      <div class="cloud-top-status">
-        <div class="cloud-badge">
-          <div class="cloud-badge-dot"></div>
-          <span>Sokovia Cloud Cluster</span>
-        </div>
-        <div class="cloud-region-label">us-east · low latency</div>
+    <!-- LEFT: Professional macOS Native Finder & Storage Showcase -->
+    <div class="showcase-panel">
+      <div class="brand-mark-top">
+        <img src="/favicon.png" alt="Sokovia"/>
+        <span>Sokovia</span>
       </div>
 
-      <!-- Center floating 3D glass cloud visual -->
-      <div class="cloud-center-halo" id="cloudHalo">
-        <div class="center-glass-icon" id="haloIcon">
-          <img src="/favicon.png" alt="Sokovia Glass Cloud Drive"/>
-        </div>
-        <div class="cloud-live-telemetry">
-          <span>SYNC <strong id="telSync">ONLINE</strong></span>
-          <span>•</span>
-          <span>LATENCY <strong id="telPing">12ms</strong></span>
-          <span>•</span>
-          <span>END-TO-END <strong>AES-256</strong></span>
+      <!-- Clean macOS Native Finder Volume Widget -->
+      <div class="drive-stage">
+        <div class="mac-window-card">
+          <div class="mac-window-titlebar">
+            <div class="window-dots">
+              <div class="window-dot dot-close"></div>
+              <div class="window-dot dot-min"></div>
+              <div class="window-dot dot-zoom"></div>
+            </div>
+            <div class="window-title">Sokovia Drive Info</div>
+          </div>
+
+          <div class="mac-window-body">
+            <div class="drive-icon-wrap">
+              <img src="/favicon.png" alt="Sokovia Drive"/>
+            </div>
+            <div class="drive-meta">
+              <div class="drive-name">Sokovia Cloud Volume</div>
+              <div class="drive-format">Apple APFS Network Volume · Private R2</div>
+              <div class="drive-bar-track">
+                <div class="drive-bar-fill"></div>
+              </div>
+              <div class="drive-capacity-row">
+                <span>3.2 TB available</span>
+                <span>4.0 TB total</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="status-strip">
+            <div class="status-indicator">
+              <div class="status-dot"></div>
+              <span>Mounted in Finder</span>
+            </div>
+            <div class="status-pill">zero local disk</div>
+          </div>
         </div>
       </div>
 
-      <!-- Bottom Narrative -->
-      <div class="cloud-bottom-narrative">
-        <h2 class="cloud-headline">Terabytes in Finder, <span>zero bytes on disk.</span></h2>
-        <p class="cloud-subtext">Mount your private cloud volume directly into macOS Finder. Fast streaming, instant hydration, and seamless offline cache.</p>
+      <!-- Narrative -->
+      <div class="showcase-text-wrap">
+        <h2 class="showcase-title">More space for your Mac, without buying a new one.</h2>
+        <p class="showcase-desc">Mount your secure cloud storage directly into macOS Finder. Files appear instantly with zero local disk overhead.</p>
       </div>
     </div>
 
     <!-- RIGHT: Sign In / Sign Up Panel -->
     <div class="auth-panel">
-      <div class="brand-icon">
-        <img src="/favicon.png" alt="Sokovia"/>
+      <div class="auth-header">
+        <h1 class="auth-title" id="authTitle">Sign in to Sokovia</h1>
+        <p class="auth-subtitle" id="authSubtitle">Welcome back. Enter your credentials to continue.</p>
       </div>
 
-      <h1 class="auth-title" id="authTitle">sign in to sokovia</h1>
-      <p class="auth-subtitle" id="authSubtitle">welcome back.</p>
-
-      <div class="signed-out-badge" id="signedOutBadge">you're signed out.</div>
+      <div class="signed-out-badge" id="signedOutBadge" style="display:none;">You have been signed out.</div>
 
       <!-- OAuth Buttons -->
-      <div class="oauth-row">
+      <div class="oauth-grid">
         <button type="button" class="btn-oauth" onclick="signInWithGoogle()">
           <svg viewBox="0 0 24 24">
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
@@ -513,81 +579,90 @@
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
           </svg>
-          google
+          Google
         </button>
 
         <button type="button" class="btn-oauth" onclick="signInWithApple()">
-          <svg viewBox="0 0 24 24" fill="#ffffff">
+          <svg viewBox="0 0 24 24" fill="#000000">
             <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.42c.67-.82 1.13-1.96 1.01-3.1-.97.04-2.15.65-2.85 1.47-.61.71-1.14 1.86-1 2.98 1.09.08 2.19-.55 2.84-1.35z"/>
           </svg>
-          apple
+          Apple
         </button>
       </div>
 
-      <div class="divider">or</div>
+      <div class="divider">or continue with email</div>
 
-      <!-- Main Email + Password Form -->
+      <!-- Main Form -->
       <form class="auth-form" id="mainAuthForm" onsubmit="handleAuthSubmit(event)">
+        <div class="error-box" id="authError"></div>
+
         <!-- Name field for signup mode -->
-        <div class="input-field-group" id="nameGroup" style="display:none;">
-          <input 
-            type="text" 
-            class="input-field" 
-            id="authName" 
-            placeholder="your name (optional)" 
-            autocomplete="name"
-          />
+        <div class="field-group" id="nameGroup" style="display:none;">
+          <label class="field-label" for="authName">Full Name</label>
+          <div class="input-wrap">
+            <input 
+              type="text" 
+              class="text-input" 
+              id="authName" 
+              placeholder="e.g. John Appleseed" 
+              autocomplete="name"
+            />
+          </div>
         </div>
 
         <!-- Email field -->
-        <div class="input-field-group">
-          <input 
-            type="email" 
-            class="input-field" 
-            id="authEmail" 
-            placeholder="your email" 
-            required 
-            autocomplete="username"
-          />
+        <div class="field-group">
+          <label class="field-label" for="authEmail">Email Address</label>
+          <div class="input-wrap">
+            <input 
+              type="email" 
+              class="text-input" 
+              id="authEmail" 
+              placeholder="name@example.com" 
+              required 
+              autocomplete="username"
+            />
+          </div>
         </div>
 
         <!-- Password field -->
-        <div class="input-field-group">
-          <input 
-            type="password" 
-            class="input-field" 
-            id="authPassword" 
-            placeholder="password" 
-            required 
-            autocomplete="current-password"
-            minlength="6"
-          />
-          <button 
-            type="button" 
-            class="pwd-toggle-btn" 
-            id="togglePwdBtn"
-            onclick="togglePasswordVisibility()" 
-            aria-label="Toggle password visibility"
-          >
-            <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-              <circle cx="12" cy="12" r="3"></circle>
-            </svg>
-          </button>
+        <div class="field-group">
+          <label class="field-label" for="authPassword">Password</label>
+          <div class="input-wrap">
+            <input 
+              type="password" 
+              class="text-input" 
+              id="authPassword" 
+              placeholder="Enter your password" 
+              required 
+              autocomplete="current-password"
+              minlength="6"
+            />
+            <button 
+              type="button" 
+              class="pwd-toggle-btn" 
+              id="togglePwdBtn"
+              onclick="togglePasswordVisibility()" 
+              aria-label="Toggle password visibility"
+            >
+              <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <button type="submit" class="btn-submit" id="submitBtn">continue with email</button>
+        <button type="submit" class="btn-submit" id="submitBtn">Sign In</button>
 
-        <div class="error-msg" id="authError"></div>
-
-        <div class="form-extras">
-          <button type="button" id="modeSwitchBtn" onclick="toggleAuthMode()">don't have an account? sign up</button>
-          <a href="/forgot-password" id="forgotLink">forgot?</a>
+        <div class="form-nav-row">
+          <button type="button" id="modeSwitchBtn" onclick="toggleAuthMode()">Don't have an account? Sign up</button>
+          <a href="/forgot-password" id="forgotLink">Forgot password?</a>
         </div>
       </form>
 
-      <div class="legal-footer">
-        by continuing you agree to the <a href="/terms">terms</a> and <a href="/privacy">privacy policy</a>.
+      <div class="legal-note">
+        By continuing you agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>.
       </div>
     </div>
 
@@ -596,186 +671,6 @@
   <!-- InsForge SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@insforge/sdk@0.4.0/dist/index.global.js"></script>
 
-  <!-- Ambient Cloud Canvas Animation & Interactive Script -->
-  <script>
-    (function initCloudVisual() {
-      const canvas = document.getElementById('cloudCanvas');
-      const card = document.getElementById('cloudStageCard');
-      const haloIcon = document.getElementById('haloIcon');
-      if (!canvas || !card) return;
-
-      const ctx = canvas.getContext('2d');
-      let width = 0;
-      let height = 0;
-      let dpr = window.devicePixelRatio || 1;
-
-      function resize() {
-        width = card.clientWidth;
-        height = card.clientHeight;
-        canvas.width = width * dpr;
-        canvas.height = height * dpr;
-        ctx.scale(dpr, dpr);
-      }
-      resize();
-      window.addEventListener('resize', resize);
-
-      // Cloud particle node system
-      const NUM_PARTICLES = 52;
-      const particles = [];
-      const mouse = { x: width / 2, y: height * 0.42, targetX: width / 2, targetY: height * 0.42 };
-
-      for (let i = 0; i < NUM_PARTICLES; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const radius = 40 + Math.random() * 150;
-        particles.push({
-          angle: angle,
-          radius: radius,
-          speed: (Math.random() * 0.003 + 0.0015) * (Math.random() > 0.5 ? 1 : -1),
-          size: Math.random() * 3.5 + 1.5,
-          baseAlpha: Math.random() * 0.45 + 0.25,
-          pulse: Math.random() * Math.PI * 2,
-          pulseSpeed: Math.random() * 0.03 + 0.015,
-          z: Math.random() * 0.8 + 0.2, // Depth factor
-          eccentricityX: 1 + Math.random() * 0.4,
-          eccentricityY: 0.65 + Math.random() * 0.3
-        });
-      }
-
-      // Parallax interaction with mouse move
-      card.addEventListener('mousemove', (e) => {
-        const rect = card.getBoundingClientRect();
-        mouse.targetX = e.clientX - rect.left;
-        mouse.targetY = e.clientY - rect.top;
-
-        if (haloIcon) {
-          const offsetX = (mouse.targetX - width / 2) * 0.05;
-          const offsetY = (mouse.targetY - height * 0.42) * 0.05;
-          haloIcon.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-        }
-      });
-
-      card.addEventListener('mouseleave', () => {
-        mouse.targetX = width / 2;
-        mouse.targetY = height * 0.42;
-        if (haloIcon) {
-          haloIcon.style.transform = 'translate(0px, 0px)';
-        }
-      });
-
-      // Fluctuate telemetry ping subtly for realistic cloud feel
-      setInterval(() => {
-        const pingEl = document.getElementById('telPing');
-        if (pingEl) {
-          const ms = Math.floor(10 + Math.random() * 6);
-          pingEl.textContent = ms + 'ms';
-        }
-      }, 3500);
-
-      let frame = 0;
-      function animate() {
-        frame++;
-        ctx.clearRect(0, 0, width, height);
-
-        // Smooth mouse follow
-        mouse.x += (mouse.targetX - mouse.x) * 0.05;
-        mouse.y += (mouse.targetY - mouse.y) * 0.05;
-
-        const centerX = width / 2 + (mouse.x - width / 2) * 0.12;
-        const centerY = height * 0.42 + (mouse.y - height * 0.42) * 0.12;
-
-        // 1. Draw Ambient Cloud Glowing Core
-        const coreGradient = ctx.createRadialGradient(
-          centerX, centerY, 15,
-          centerX, centerY, 240
-        );
-        coreGradient.addColorStop(0, 'rgba(0, 113, 227, 0.22)');
-        coreGradient.addColorStop(0.4, 'rgba(40, 140, 255, 0.09)');
-        coreGradient.addColorStop(0.8, 'rgba(120, 180, 255, 0.02)');
-        coreGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-        ctx.fillStyle = coreGradient;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, 240, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 2. Draw Subtle Cloud Iso-rings / Orbits
-        const numRings = 3;
-        for (let r = 1; r <= numRings; r++) {
-          const baseR = r * 58;
-          ctx.beginPath();
-          ctx.ellipse(centerX, centerY, baseR * 1.35, baseR * 0.8, Math.sin(frame * 0.005) * 0.08, 0, Math.PI * 2);
-          ctx.strokeStyle = `rgba(112, 183, 255, ${0.04 + r * 0.015})`;
-          ctx.lineWidth = 1;
-          ctx.setLineDash([4, 8]);
-          ctx.stroke();
-          ctx.setLineDash([]);
-        }
-
-        // 3. Connect nearby cloud particles with subtle neural/data mesh lines
-        for (let i = 0; i < particles.length; i++) {
-          const p1 = particles[i];
-          const x1 = centerX + Math.cos(p1.angle) * p1.radius * p1.eccentricityX;
-          const y1 = centerY + Math.sin(p1.angle) * p1.radius * p1.eccentricityY;
-
-          for (let j = i + 1; j < particles.length; j++) {
-            const p2 = particles[j];
-            const x2 = centerX + Math.cos(p2.angle) * p2.radius * p2.eccentricityX;
-            const y2 = centerY + Math.sin(p2.angle) * p2.radius * p2.eccentricityY;
-
-            const dx = x1 - x2;
-            const dy = y1 - y2;
-            const dist = Math.hypot(dx, dy);
-
-            if (dist < 65) {
-              const alpha = (1 - dist / 65) * 0.18 * ((p1.z + p2.z) / 2);
-              ctx.beginPath();
-              ctx.moveTo(x1, y1);
-              ctx.lineTo(x2, y2);
-              ctx.strokeStyle = `rgba(140, 205, 255, ${alpha})`;
-              ctx.lineWidth = 1;
-              ctx.stroke();
-            }
-          }
-        }
-
-        // 4. Draw Floating Cloud Particles & Data Packets
-        for (let i = 0; i < particles.length; i++) {
-          const p = particles[i];
-          p.angle += p.speed;
-          p.pulse += p.pulseSpeed;
-
-          const currentRadius = p.radius + Math.sin(p.pulse) * 4;
-          const px = centerX + Math.cos(p.angle) * currentRadius * p.eccentricityX;
-          const py = centerY + Math.sin(p.angle) * currentRadius * p.eccentricityY;
-
-          const currentSize = p.size * (0.85 + Math.sin(p.pulse) * 0.25) * p.z;
-          const alpha = p.baseAlpha * (0.6 + Math.sin(p.pulse) * 0.4);
-
-          // Subtle glow around particle
-          const particleGlow = ctx.createRadialGradient(px, py, 0, px, py, currentSize * 3);
-          particleGlow.addColorStop(0, `rgba(166, 224, 255, ${alpha})`);
-          particleGlow.addColorStop(0.5, `rgba(0, 113, 227, ${alpha * 0.4})`);
-          particleGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-          ctx.fillStyle = particleGlow;
-          ctx.beginPath();
-          ctx.arc(px, py, currentSize * 3, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Particle core
-          ctx.fillStyle = `rgba(240, 250, 255, ${Math.min(1, alpha + 0.3)})`;
-          ctx.beginPath();
-          ctx.arc(px, py, currentSize * 0.7, 0, Math.PI * 2);
-          ctx.fill();
-        }
-
-        requestAnimationFrame(animate);
-      }
-      requestAnimationFrame(animate);
-    })();
-  </script>
-
-  <!-- Auth Logic -->
   <script>
     // Initialize InsForge
     try {
@@ -792,7 +687,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('signed_out') === '1') {
       const badge = document.getElementById('signedOutBadge');
-      if (badge) badge.style.display = 'block';
+      if (badge) badge.style.display = 'inline-block';
     }
 
     // Toggle Sign In vs Sign Up
@@ -807,18 +702,18 @@
       const forgotLink = document.getElementById('forgotLink');
 
       if (isSignUp) {
-        title.textContent = 'create your account';
-        subtitle.textContent = 'get your private macOS cloud drive.';
-        nameGroup.style.display = 'block';
-        submitBtn.textContent = 'create account';
-        modeBtn.textContent = 'already have an account? sign in';
+        title.textContent = 'Create your account';
+        subtitle.textContent = 'Get started with your private macOS cloud drive.';
+        nameGroup.style.display = 'flex';
+        submitBtn.textContent = 'Create Account';
+        modeBtn.textContent = 'Already have an account? Sign in';
         forgotLink.style.display = 'none';
       } else {
-        title.textContent = 'sign in to sokovia';
-        subtitle.textContent = 'welcome back.';
+        title.textContent = 'Sign in to Sokovia';
+        subtitle.textContent = 'Welcome back. Enter your credentials to continue.';
         nameGroup.style.display = 'none';
-        submitBtn.textContent = 'continue with email';
-        modeBtn.textContent = "don't have an account? sign up";
+        submitBtn.textContent = 'Sign In';
+        modeBtn.textContent = "Don't have an account? Sign up";
         forgotLink.style.display = 'inline';
       }
     }
@@ -880,7 +775,7 @@
         if (!client) throw new Error('InsForge client not initialized');
 
         if (isSignUp) {
-          btn.textContent = 'creating account...';
+          btn.textContent = 'Creating account...';
           const { data, error } = await client.auth.signUp({
             email,
             password,
@@ -904,7 +799,7 @@
           window.location.href = '/dashboard?email=' + encodeURIComponent(email);
 
         } else {
-          btn.textContent = 'signing in...';
+          btn.textContent = 'Signing in...';
           const { data, error } = await client.auth.signInWithPassword({
             email,
             password
@@ -922,7 +817,7 @@
         errEl.textContent = err.message || (isSignUp ? 'Sign up failed.' : 'Invalid email or password.');
         errEl.style.display = 'block';
         btn.disabled = false;
-        btn.textContent = isSignUp ? 'create account' : 'continue with email';
+        btn.textContent = isSignUp ? 'Create Account' : 'Sign In';
       }
     }
   </script>
