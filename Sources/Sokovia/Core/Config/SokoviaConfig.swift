@@ -80,24 +80,10 @@ public struct SokoviaConfig: Codable, Equatable, Sendable {
            let decoded = try? JSONDecoder().decode(SokoviaConfig.self, from: data) {
             config = decoded
         }
-        // Load secrets from secure macOS Keychain if present
-        if let secret = KeychainHelper.load(key: "secretAccessKey"), !secret.isEmpty {
-            config.secretAccessKey = secret
-        }
-        if let pass = KeychainHelper.load(key: "encryptionPassphrase"), !pass.isEmpty {
-            config.encryptionPassphrase = pass
-        }
         return config
     }
 
     public func save() {
-        // Save sensitive keys to Apple Keychain
-        if !secretAccessKey.isEmpty {
-            KeychainHelper.save(key: "secretAccessKey", data: secretAccessKey)
-        }
-        if !encryptionPassphrase.isEmpty {
-            KeychainHelper.save(key: "encryptionPassphrase", data: encryptionPassphrase)
-        }
         if let data = try? JSONEncoder().encode(self) {
             try? data.write(to: Self.configURL, options: .atomic)
             // Restrict permissions so only the owner can read/write this file (chmod 600)
