@@ -9,23 +9,39 @@
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <style>
     :root {
-      --bg: #f5f5f7;
-      --card-bg: #ffffff;
-      --card-hover: #f0f0f2;
-      --border: rgba(0, 0, 0, 0.08);
-      --border-light: rgba(0, 0, 0, 0.12);
-      --ink: #000000;
-      --ink-2: #6e6e73;
-      --ink-3: #86868b;
+      --bg: #f2f5f9;
+      --bg-mesh: radial-gradient(at 0% 0%, rgba(142, 197, 252, 0.35) 0px, transparent 50%),
+                 radial-gradient(at 100% 0%, rgba(224, 195, 252, 0.3) 0px, transparent 50%),
+                 radial-gradient(at 50% 100%, rgba(161, 219, 255, 0.25) 0px, transparent 60%),
+                 #f0f4f9;
+      --glass-surface: rgba(255, 255, 255, 0.65);
+      --glass-surface-hover: rgba(255, 255, 255, 0.82);
+      --glass-border: rgba(255, 255, 255, 0.85);
+      --glass-border-subtle: rgba(255, 255, 255, 0.5);
+      --glass-shadow: 0 20px 40px -15px rgba(24, 48, 89, 0.08),
+                      0 0 0 1px rgba(255, 255, 255, 0.7),
+                      inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.9),
+                      inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.02);
+      --glass-shadow-sm: 0 8px 20px -6px rgba(24, 48, 89, 0.06),
+                         0 0 0 1px rgba(255, 255, 255, 0.6),
+                         inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+      --glass-blur: blur(28px) saturate(190%);
+      --card-bg: var(--glass-surface);
+      --card-hover: var(--glass-surface-hover);
+      --border: rgba(255, 255, 255, 0.7);
+      --border-light: rgba(255, 255, 255, 0.9);
+      --ink: #0c121e;
+      --ink-2: #5b6577;
+      --ink-3: #8a94a6;
       --accent: #0071e3;
-      --saving: #18703a;
+      --saving: #107a3c;
       --danger: #d70015;
       --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", -apple-system, sans-serif;
       color-scheme: light;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      background: var(--bg);
+      background: var(--bg-mesh); background-attachment: fixed;
       color: var(--ink);
       font-family: var(--font);
       font-size: 14px;
@@ -37,11 +53,11 @@
 
     /* Top Brand Center Logo */
     header {
-      padding: 24px 0 16px;
+      padding: 28px 0 20px;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: var(--bg);
+      background: transparent;
     }
     .brand-logo {
       display: flex;
@@ -54,14 +70,14 @@
       letter-spacing: -0.02em;
     }
     .brand-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 7px;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 6px 16px -2px rgba(0, 113, 227, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.9);
     }
     .brand-icon img {
       width: 100%;
@@ -81,23 +97,28 @@
 
     /* Helumi Top Profile & Meter Card */
     .profile-card {
-      background: var(--card-bg);
-      border-radius: 20px;
-      padding: 24px;
+      background: var(--glass-surface);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-radius: 24px;
+      padding: 28px 24px;
       margin-bottom: 32px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-      border: 1px solid var(--border);
+      box-shadow: var(--glass-shadow);
+      border: 1px solid var(--glass-border);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
     }
 
     /* Device Unlock / Pairing Card (Helumi Style) */
     .unlock-card {
-      background: var(--card-bg);
-      border-radius: 24px;
+      background: var(--glass-surface);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-radius: 26px;
       padding: 44px 32px;
       text-align: center;
       margin-bottom: 32px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
       display: none;
     }
     .unlock-icon-circle {
@@ -265,14 +286,21 @@
       margin-bottom: 34px;
     }
     .folder-card {
-      background: var(--card-bg);
-      border-radius: 14px;
-      padding: 16px;
+      background: var(--glass-surface);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-radius: 18px;
+      padding: 18px;
       cursor: pointer;
-      border: 1px solid var(--border);
-      transition: background 0.15s;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow-sm);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s, box-shadow 0.2s;
     }
-    .folder-card:hover { background: var(--card-hover); }
+    .folder-card:hover {
+      background: var(--glass-surface-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -8px rgba(24, 48, 89, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.9), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+    }
     .folder-icon {
       font-size: 26px;
       margin-bottom: 14px;
@@ -310,7 +338,12 @@
       transition: background 0.15s;
       cursor: pointer;
     }
-    .file-row:hover { background: rgba(0, 0, 0, 0.04); }
+    .file-row:hover {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 4px 12px -2px rgba(24, 48, 89, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+    }
     .file-main {
       display: flex;
       align-items: center;
@@ -391,15 +424,18 @@
     }
     .bottom-dock {
       pointer-events: auto;
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid var(--border-light);
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(36px) saturate(210%);
+      -webkit-backdrop-filter: blur(36px) saturate(210%);
+      border: 1px solid rgba(255, 255, 255, 0.9);
       border-radius: 999px;
-      padding: 5px 8px;
+      padding: 6px 10px;
       display: flex;
-      gap: 4px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      gap: 5px;
+      box-shadow: 0 20px 48px -10px rgba(20, 35, 70, 0.14),
+                  0 0 0 1px rgba(255, 255, 255, 0.7),
+                  inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
+                  inset 0 -1.5px 2px 0 rgba(0, 0, 0, 0.02);
     }
     .dock-btn {
       display: flex;
@@ -449,12 +485,14 @@
 
     /* Account / Settings Tab Card */
     .settings-card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 14px;
-      border: 1px solid var(--border);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+      background: var(--glass-surface);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-radius: 22px;
+      padding: 24px;
+      margin-bottom: 16px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow-sm);
     }
     .settings-card-title {
       font-size: 12px;
@@ -590,20 +628,24 @@
 
     /* Plan Slider & Interactive Pricing UI */
     .plan-card {
-      background: var(--card-bg);
-      border-radius: 20px;
+      background: var(--glass-surface);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-radius: 26px;
       padding: 32px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
       max-width: 600px;
       margin: 0 auto;
     }
     .current-plan-hero {
-      background: #ffffff;
-      border-radius: 20px;
+      background: var(--glass-surface);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border-radius: 26px;
       padding: 32px;
-      border: 1px solid var(--border);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
       max-width: 600px;
       margin: 0 auto 24px;
       text-align: left;
