@@ -19,6 +19,40 @@ let pairingPollTimer: any = null;
 let currentPairingId: string | null = null;
 
 export async function initDashboard(): Promise<void> {
+  const urlParams = new URLSearchParams(window.location.search);
+  const oauthCode = urlParams.get('insforge_code');
+
+  // If returning from Google OAuth with code, perform exchange immediately
+  if (oauthCode) {
+    try {
+      const storedVerifier = sessionStorage.getItem('insforge_pkce_verifier') || localStorage.getItem('insforge_pkce_verifier');
+      if (storedVerifier) {
+        sessionStorage.setItem('insforge_pkce_verifier', storedVerifier);
+      }
+      if (insforge && insforge.auth) {
+        const { data, error } = await insforge.auth.exchangeOAuthCode(oauthCode, storedVerifier || undefined);
+        if (!error && data && data.user) {
+          const userObj = data.user;
+          const uEmail = userObj.email;
+          const uName = (userObj as any).name || (userObj.profile && (userObj.profile as any).name) || '';
+          localStorage.setItem('sokovia_session', JSON.stringify({ email: uEmail, name: uName, user: userObj }));
+          document.cookie = "sokovia_user=" + encodeURIComponent(uEmail) + "; path=/; max-age=86400; SameSite=Lax";
+          
+          // Auto-provision bucket if first time
+          try {
+            await fetch('https://26u7vqfh.function2.insforge.app/provision-user-bucket', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: uEmail, displayName: uName })
+            });
+          } catch (bErr) {}
+        }
+      }
+    } catch (e) {
+      console.warn('OAuth exchange handler notice:', e);
+    }
+  }
+
   // 1. Wait for OAuth callback to complete if returning from Google OAuth
   if (insforge && insforge.auth && (insforge.auth as any).authCallbackHandled) {
     try { await (insforge.auth as any).authCallbackHandled; } catch (e) {}

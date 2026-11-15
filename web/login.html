@@ -730,12 +730,16 @@
       if (googleBtn) googleBtn.innerText = 'Connecting to Google...';
 
       try {
-        // Standard PKCE OAuth initiation
-        const array = new Uint8Array(32);
-        window.crypto.getRandomValues(array);
-        const codeVerifier = base64UrlEncode(array);
+        // Generate high-entropy 64-character verifier strictly adhering to PKCE RFC 7636
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+        const randomBytes = new Uint8Array(64);
+        window.crypto.getRandomValues(randomBytes);
+        let codeVerifier = "";
+        for (let i = 0; i < 64; i++) {
+          codeVerifier += chars[randomBytes[i] % chars.length];
+        }
 
-        // Store PKCE verifier so InsForge SDK on /dashboard can complete the code exchange
+        // Store PKCE verifier in both sessionStorage and localStorage for safe cross-page access
         sessionStorage.setItem('insforge_pkce_verifier', codeVerifier);
         localStorage.setItem('insforge_pkce_verifier', codeVerifier);
 
@@ -756,7 +760,7 @@
           throw new Error(result.message || result.error || 'Failed to start Google sign-in.');
         }
 
-        // Seamless redirect to Google Accounts
+        // Redirect directly to Google's sign-in screen
         window.location.href = result.authUrl;
       } catch (err) {
         console.error('Google OAuth error:', err);
