@@ -182,6 +182,8 @@ export async function initDashboard(): Promise<void> {
         }
         applyActivePlanUI(parsedSub.plan_storage, currentActiveBillingCycle, parsedSub.amount_inr);
       }
+    } else {
+      applyActivePlanUI('5 GB', 'free');
     }
 
     const cachedBucket = localStorage.getItem('sokovia_bucket_' + currentUserEmail);
@@ -532,9 +534,13 @@ export async function loadUserSubscription(): Promise<void> {
       }
 
       applyActivePlanUI(sub.plan_storage, sub.billing_cycle, sub.amount_inr);
+    } else {
+      // Default free tier: 5 GB
+      applyActivePlanUI('5 GB', 'free');
     }
   } catch (e) {
     console.error('Error loading subscription:', e);
+    applyActivePlanUI('5 GB', 'free');
   }
 }
 
