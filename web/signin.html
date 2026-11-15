@@ -822,7 +822,8 @@
             });
           } catch(bErr) {}
 
-          window.location.href = '/dashboard?email=' + encodeURIComponent(email);
+          sessionStorage.setItem('sokovia_just_registered', 'true');
+          window.location.href = '/dashboard?email=' + encodeURIComponent(email) + '&new_signup=1';
 
         } else {
           btn.textContent = 'Signing in...';

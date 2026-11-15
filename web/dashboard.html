@@ -1107,6 +1107,13 @@
         <div class="settings-card-title">security & encryption</div>
         <div class="settings-row">
           <div class="settings-row-text">
+            <h4>recovery key</h4>
+            <p>used to unlock your private Sokovia files</p>
+          </div>
+          <button class="btn-pill-sm" onclick="showRecoveryKeyModal()">view key</button>
+        </div>
+        <div class="settings-row">
+          <div class="settings-row-text">
             <h4>end-to-end encryption</h4>
             <p>AES-GCM-256 local client encryption enabled</p>
           </div>
@@ -1145,6 +1152,34 @@
         Your plan has been activated. Enjoy seamless terabytes on your Mac with zero local disk usage.
       </p>
       <button class="modal-btn" onclick="closePaymentSuccessModal()">done</button>
+    </div>
+  </div>
+
+  <!-- Helumi-Style First-Time Account Creation Recovery Key Modal -->
+  <div class="modal-overlay" id="recoveryKeyModal">
+    <div class="modal-card" style="max-width: 620px; text-align: left; padding: 42px 40px;">
+      <h2 style="font-size: 28px; font-weight: 700; letter-spacing: -0.03em; color: var(--ink); margin-bottom: 24px;">Sokovia Recovery Key</h2>
+      
+      <div id="recoveryKeyCodeDisplay" style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 15px; font-weight: 600; letter-spacing: 0.08em; line-height: 1.85; color: #111111; background: #fafafa; border: 1px solid var(--border); padding: 18px 20px; border-radius: 12px; word-break: break-all; user-select: all; margin-bottom: 20px;">
+        MGRT-ZTP5-1VEM-6WYR-3C47-0CNV-6FEB-W46H-8FXB-ZE71-DPQ7-0JTP-N5K0
+      </div>
+
+      <div style="font-size: 13.5px; color: var(--ink-3); margin-bottom: 12px;" id="recoveryKeyDateDisplay">
+        <!-- Date populated dynamically -->
+      </div>
+
+      <p style="font-size: 15px; font-weight: 500; color: var(--ink-2); line-height: 1.5; margin-bottom: 28px;">
+        Keep this safe. It opens your Sokovia files.
+      </p>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end; align-items: center;">
+        <button type="button" onclick="copyRecoveryKey()" class="btn-pill-sm" id="btnCopyRecovery" style="height: 42px; padding: 0 20px; font-size: 13.5px;">
+          copy key
+        </button>
+        <button type="button" onclick="dismissRecoveryKeyModal()" class="modal-btn" style="margin: 0; width: auto; padding: 0 24px; height: 42px; font-size: 13.5px;">
+          i have saved this key
+        </button>
+      </div>
     </div>
   </div>
 

@@ -10,6 +10,7 @@ export interface BucketFile {
 let currentUserEmail: string = '';
 let currentBucketName: string = '';
 let currentUserName: string = '';
+let currentUserRecoveryKey: string = '';
 let currentPlanQuotaBytes: number = 5 * 1024 * 1024 * 1024; // Default 5 GB free
 let currentActivePlanStorage: string = '5 GB free';
 let currentActiveBillingCycle: string = 'free';
@@ -29,6 +30,10 @@ export async function initDashboard(): Promise<void> {
   // Check query parameter (from email login redirect)
   const params = new URLSearchParams(window.location.search);
   const qEmail = params.get('email');
+  const isNewSignup = params.get('new_signup') === '1' || sessionStorage.getItem('sokovia_just_registered') === 'true';
+  if (isNewSignup) {
+    sessionStorage.removeItem('sokovia_just_registered');
+  }
   if (qEmail && qEmail.includes('@')) {
     authenticatedUser = { email: qEmail, name: '' };
     localStorage.setItem('sokovia_session', JSON.stringify({ email: qEmail }));
@@ -153,6 +158,122 @@ export async function initDashboard(): Promise<void> {
   initDevicePairing();
   loadUserSubscription();
   loadBucketData();
+  initRecoveryKeyFlow(isNewSignup);
+}
+
+function generateStandardRecoveryKey(): string {
+  const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const groups: string[] = [];
+  const array = new Uint8Array(48);
+  if (typeof window !== 'undefined' && window.crypto) {
+    window.crypto.getRandomValues(array);
+  } else {
+    for (let i = 0; i < 48; i++) array[i] = Math.floor(Math.random() * 256);
+  }
+  for (let g = 0; g < 12; g++) {
+    let grp = '';
+    for (let i = 0; i < 4; i++) {
+      grp += chars[array[g * 4 + i] % chars.length];
+    }
+    groups.push(grp);
+  }
+  return groups.join('-');
+}
+
+export async function initRecoveryKeyFlow(forceShow = false): Promise<void> {
+  try {
+    let key = localStorage.getItem('sokovia_recovery_' + currentUserEmail) || '';
+
+    // Check backend RPC
+    if (!key && insforge && insforge.database) {
+      const { data } = await insforge.database.rpc('get_user_recovery_key', { p_email: currentUserEmail });
+      if (data && typeof data === 'string' && data.length > 10) {
+        key = data;
+      }
+    }
+
+    // If still no key, generate one now
+    if (!key) {
+      key = generateStandardRecoveryKey();
+      if (insforge && insforge.database) {
+        try {
+          await insforge.database.rpc('set_user_recovery_key', {
+            p_email: currentUserEmail,
+            p_recovery_key: key
+          });
+        } catch (e) {}
+      }
+    }
+
+    currentUserRecoveryKey = key;
+    localStorage.setItem('sokovia_recovery_' + currentUserEmail, key);
+
+    // Format today's date like "4 November 2026"
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+
+    const codeDisplay = document.getElementById('recoveryKeyCodeDisplay');
+    const dateDisplay = document.getElementById('recoveryKeyDateDisplay');
+    if (codeDisplay) codeDisplay.textContent = currentUserRecoveryKey;
+    if (dateDisplay) dateDisplay.textContent = formattedDate;
+
+    // Check if user has already acknowledged their key
+    const hasAcknowledged = localStorage.getItem('sokovia_recovery_acked_' + currentUserEmail) === 'true';
+
+    // Show automatically on first account creation
+    if (forceShow || !hasAcknowledged) {
+      showRecoveryKeyModal();
+    }
+  } catch (err) {
+    console.warn('Recovery key flow notice:', err);
+  }
+}
+
+export function showRecoveryKeyModal(): void {
+  const modal = document.getElementById('recoveryKeyModal');
+  const codeDisplay = document.getElementById('recoveryKeyCodeDisplay');
+  const dateDisplay = document.getElementById('recoveryKeyDateDisplay');
+
+  if (codeDisplay && currentUserRecoveryKey) {
+    codeDisplay.textContent = currentUserRecoveryKey;
+  }
+  if (dateDisplay && !dateDisplay.textContent) {
+    dateDisplay.textContent = new Date().toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+  if (modal) {
+    modal.classList.add('active');
+  }
+}
+
+export function dismissRecoveryKeyModal(): void {
+  const modal = document.getElementById('recoveryKeyModal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+  if (currentUserEmail) {
+    localStorage.setItem('sokovia_recovery_acked_' + currentUserEmail, 'true');
+  }
+}
+
+export function copyRecoveryKey(): void {
+  const code = currentUserRecoveryKey || document.getElementById('recoveryKeyCodeDisplay')?.textContent || '';
+  if (code && navigator.clipboard) {
+    navigator.clipboard.writeText(code.trim());
+    const copyBtn = document.getElementById('btnCopyRecovery');
+    if (copyBtn) {
+      const orig = copyBtn.textContent;
+      copyBtn.textContent = 'copied!';
+      setTimeout(() => { copyBtn.textContent = orig; }, 1800);
+    }
+  }
 }
 
 export async function loadUserSubscription(): Promise<void> {
@@ -807,6 +928,9 @@ if (typeof window !== 'undefined') {
   w.handleContinueToPayment = handleContinueToPayment;
   w.closePaymentSuccessModal = closePaymentSuccessModal;
   w.toggleUpgradeSlider = toggleUpgradeSlider;
+  w.showRecoveryKeyModal = showRecoveryKeyModal;
+  w.dismissRecoveryKeyModal = dismissRecoveryKeyModal;
+  w.copyRecoveryKey = copyRecoveryKey;
 
   window.addEventListener('DOMContentLoaded', () => {
     initDashboard();
