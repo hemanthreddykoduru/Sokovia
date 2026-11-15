@@ -19,7 +19,7 @@
       --s-7: 48px;
       --s-8: 64px;
       --s-9: 80px;
-      --content: 840px;
+      --content: 940px;
       --gutter: 24px;
       --bg: #f5f5f5;
       --surface: #ffffff;
@@ -138,7 +138,7 @@
     }
 
     .wrap {
-      max-width: var(--content);
+      max-width: calc(var(--content) + 2 * var(--gutter));
       margin: 0 auto;
       padding: 0 var(--gutter);
     }
@@ -806,24 +806,67 @@
 .f-info-checks span{align-items:center;gap:6px;display:flex}
 .f-info-checks i{border:1px solid #c7c7cc;border-radius:3px;width:12px;height:12px}
 .f-cursor{width:16px;height:20px;left:calc(var(--cx,.55) * 100%);top:calc(var(--cy,.8) * 100%);transition:left .7s var(--ease-out), top .7s var(--ease-out);pointer-events:none;position:absolute}
-.f-info{right:var(--s-3)}
-.f-menu{top:72px;right:var(--s-3);width:min(340px,100% - 24px)}
-.f-window{grid-template-columns:1fr}
-.f-side,.f-toolbar .f-capsule:not(:first-child):not(.round){display:none}
-.f-toolbar .round{margin-left:auto}
-.f-grid{grid-template-columns:repeat(3,1fr)}
-.f-item:nth-child(n+10){display:none}
-.f-info{top:auto;bottom:var(--s-3);left:var(--s-3);right:var(--s-3);width:auto}
-.f-info .f-info-section:not(.open),.f-info-checks,.f-info-tags{display:none}
-.f-info-bar{padding-left:64px}
-.f-info-bar b{min-width:0}
-.f-cursor{display:none}
-.f-lights{display:none}
-.f-lights{margin-right:var(--s-1);display:inline-flex}
-.f-lights{margin:0 0 12px 4px}
-.f-lights{position:absolute;left:14px}
-.f-lights i{background:#ffffff8c}
-.f-lights{margin-right:4px}
+/* Responsive queries for small mobile screens only */
+@media (max-width: 680px) {
+  .f-window { grid-template-columns: 1fr !important; }
+  .f-side, .f-toolbar .f-capsule:not(:first-child):not(.round) { display: none !important; }
+  .f-grid { grid-template-columns: repeat(3, 1fr) !important; }
+}
+
+/* Desktop styles: Always show the full sidebar! */
+.f-window {
+  grid-template-columns: 184px 1fr !important;
+  min-height: 536px;
+  display: grid !important;
+}
+.f-side {
+  display: block !important;
+  background: #f2f2f4 !important;
+  border: 1px solid #00000009 !important;
+  border-radius: 16px !important;
+  margin: 7px 0 7px 7px !important;
+  padding: 14px 8px !important;
+}
+.f-side-item {
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 7px;
+  align-items: center;
+  gap: 7px;
+  display: flex !important;
+  font-size: 12px;
+  color: #1d1d1f;
+  cursor: default;
+}
+.f-side-item.active {
+  background: #00000014 !important;
+  font-weight: 600 !important;
+}
+.f-lights-finder {
+  padding: 0 4px !important;
+  margin-bottom: 18px !important;
+  display: flex !important;
+  gap: 8px !important;
+}
+.f-lights-finder i {
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  display: inline-block !important;
+}
+.f-lights-finder i:nth-child(1) { background: #ff5f56 !important; border: 1px solid #e0443e !important; }
+.f-lights-finder i:nth-child(2) { background: #ffbd2e !important; border: 1px solid #dea123 !important; }
+.f-lights-finder i:nth-child(3) { background: #27c93f !important; border: 1px solid #1aab29 !important; }
+.f-grid {
+  grid-template-columns: repeat(5, 1fr) !important;
+  gap: 22px 8px !important;
+  padding: 24px 14px 32px !important;
+  display: grid !important;
+}
+.f-toolbar .f-capsule {
+  display: inline-flex !important;
+}
+
 </style>
   <!-- Compiled TypeScript Application Bundle -->
   <script src="/dist/index.js" defer></script>
