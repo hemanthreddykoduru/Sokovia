@@ -476,9 +476,7 @@ export async function handleLandingPayment(): Promise<void> {
   const userEmail = currentSessionUser?.email || emailInput?.value || localStorage.getItem('sokovia_email');
 
   if (!currentSessionUser && !userEmail) {
-    alert('Please enter your email or sign up below to continue to payment.');
-    const authSection = document.getElementById('auth-section');
-    if (authSection) authSection.scrollIntoView({ behavior: 'smooth' });
+    window.location.href = '/login';
     return;
   }
 
