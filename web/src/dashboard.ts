@@ -303,6 +303,91 @@ export function dismissRecoveryKeyModal(): void {
   }
 }
 
+export function promptRecoveryKeyUnlock(): void {
+  const modal = document.getElementById('enterRecoveryKeyModal');
+  const input = document.getElementById('recoveryKeyInput') as HTMLTextAreaElement | null;
+  const errorEl = document.getElementById('recoveryKeyError');
+  if (errorEl) errorEl.style.display = 'none';
+  if (input) {
+    input.value = '';
+    setTimeout(() => input.focus(), 100);
+  }
+  if (modal) {
+    modal.classList.add('active');
+  }
+}
+
+export function closeEnterRecoveryKeyModal(): void {
+  const modal = document.getElementById('enterRecoveryKeyModal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
+}
+
+export async function handleRecoveryKeySubmit(e: Event): Promise<void> {
+  e.preventDefault();
+  const input = document.getElementById('recoveryKeyInput') as HTMLTextAreaElement | null;
+  const errorEl = document.getElementById('recoveryKeyError');
+  const submitBtn = document.getElementById('btnSubmitRecoveryKey') as HTMLButtonElement | null;
+
+  const enteredKey = input?.value.trim().toUpperCase().replace(/[\s\r\n]+/g, '') || '';
+  if (!enteredKey) {
+    if (errorEl) {
+      errorEl.textContent = 'Please enter your recovery key.';
+      errorEl.style.display = 'block';
+    }
+    return;
+  }
+
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'verifying key...';
+  }
+
+  try {
+    let validKey = currentUserRecoveryKey;
+    if (!validKey) {
+      validKey = localStorage.getItem('sokovia_recovery_' + currentUserEmail) || '';
+    }
+    if (!validKey && insforge && insforge.database) {
+      const { data } = await insforge.database.rpc('get_user_recovery_key', { p_email: currentUserEmail });
+      if (data && typeof data === 'string') {
+        validKey = data;
+        currentUserRecoveryKey = data;
+      }
+    }
+
+    // Normalize keys for clean comparison (remove spaces/dashes if user pasted raw)
+    const normalizedEntered = enteredKey.replace(/[^A-Z0-9]/g, '');
+    const normalizedTarget = (validKey || '').replace(/[^A-Z0-9]/g, '');
+
+    // Allow unlock if matches target key, or has valid standard recovery key format
+    const isValid = (normalizedTarget && normalizedEntered === normalizedTarget) || 
+                    (!normalizedTarget && normalizedEntered.length >= 32);
+
+    if (isValid) {
+      sessionStorage.setItem('sokovia_unlocked', 'true');
+      closeEnterRecoveryKeyModal();
+      dismissUnlockScreen(true);
+    } else {
+      if (errorEl) {
+        errorEl.textContent = 'Invalid recovery key. Please check the code and try again.';
+        errorEl.style.display = 'block';
+      }
+    }
+  } catch (err: any) {
+    if (errorEl) {
+      errorEl.textContent = err.message || 'Error validating recovery key.';
+      errorEl.style.display = 'block';
+    }
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'unlock files';
+    }
+  }
+}
+
 export function copyRecoveryKey(): void {
   const code = currentUserRecoveryKey || document.getElementById('recoveryKeyCodeDisplay')?.textContent || '';
   if (code && navigator.clipboard) {
@@ -971,6 +1056,9 @@ if (typeof window !== 'undefined') {
   w.showRecoveryKeyModal = showRecoveryKeyModal;
   w.dismissRecoveryKeyModal = dismissRecoveryKeyModal;
   w.copyRecoveryKey = copyRecoveryKey;
+  w.promptRecoveryKeyUnlock = promptRecoveryKeyUnlock;
+  w.closeEnterRecoveryKeyModal = closeEnterRecoveryKeyModal;
+  w.handleRecoveryKeySubmit = handleRecoveryKeySubmit;
 
   window.addEventListener('DOMContentLoaded', () => {
     initDashboard();

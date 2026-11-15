@@ -525,6 +525,9 @@
       justify-content: center;
       padding: 20px;
     }
+    .modal-overlay.active {
+      display: flex;
+    }
     .modal-card {
       background: #ffffff;
       border-radius: 24px;
@@ -836,7 +839,7 @@
           <span>waiting for your mac...</span>
         </div>
         <div>
-          <a class="unlock-footer-link" onclick="dismissUnlockScreen()">use recovery key instead</a>
+          <a class="unlock-footer-link" onclick="promptRecoveryKeyUnlock()">use recovery key instead</a>
         </div>
       </div>
 
@@ -1152,6 +1155,45 @@
         Your plan has been activated. Enjoy seamless terabytes on your Mac with zero local disk usage.
       </p>
       <button class="modal-btn" onclick="closePaymentSuccessModal()">done</button>
+    </div>
+  </div>
+
+  <!-- Enter Recovery Key Unlock Modal -->
+  <div class="modal-overlay" id="enterRecoveryKeyModal">
+    <div class="modal-card" style="max-width: 540px; text-align: left; padding: 36px 32px;">
+      <div style="width: 48px; height: 48px; border-radius: 50%; background: #f0f0f4; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 20px;">
+        🔑
+      </div>
+      <h2 style="font-size: 24px; font-weight: 700; letter-spacing: -0.03em; color: var(--ink); margin-bottom: 8px;">
+        Unlock with Recovery Key
+      </h2>
+      <p style="font-size: 14px; color: var(--ink-2); line-height: 1.5; margin-bottom: 22px;">
+        Enter your 48-character Sokovia Recovery Key to unlock your encrypted files on this browser.
+      </p>
+
+      <form onsubmit="handleRecoveryKeySubmit(event)">
+        <div style="margin-bottom: 18px;">
+          <textarea 
+            id="recoveryKeyInput" 
+            rows="3" 
+            placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" 
+            required 
+            style="width: 100%; padding: 14px 16px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 14px; font-weight: 500; letter-spacing: 0.05em; border: 1px solid var(--border); border-radius: 12px; background: #fafafa; color: #111111; resize: none; box-sizing: border-box; outline: none; transition: border-color 0.15s;"
+            onfocus="this.style.borderColor='#000000'"
+            onblur="this.style.borderColor='var(--border)'"
+          ></textarea>
+          <div id="recoveryKeyError" style="display: none; color: #e53935; font-size: 12.5px; margin-top: 6px; font-weight: 500;"></div>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center;">
+          <button type="button" onclick="closeEnterRecoveryKeyModal()" class="btn-pill-sm" style="height: 42px; padding: 0 18px; font-size: 13.5px;">
+            cancel
+          </button>
+          <button type="submit" id="btnSubmitRecoveryKey" class="modal-btn" style="margin: 0; width: auto; padding: 0 24px; height: 42px; font-size: 13.5px;">
+            unlock files
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
