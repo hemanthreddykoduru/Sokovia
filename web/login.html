@@ -837,7 +837,7 @@
           });
           if (error) throw error;
 
-          const userObj = data && data.user ? data.user : { email, name: (data?.user as any)?.name || '' };
+          const userObj = data && data.user ? data.user : { email, name: (data && data.user && data.user.name) || '' };
           localStorage.setItem('sokovia_session', JSON.stringify({ email, name: userObj.name || '', user: userObj }));
           document.cookie = "sokovia_user=" + encodeURIComponent(email) + "; path=/; max-age=86400; SameSite=Lax";
 
