@@ -46,6 +46,17 @@ cat << 'EOF' > "$APP_BUNDLE/Contents/Info.plist"
     <string>1.0.0</string>
     <key>CFBundleVersion</key>
     <string>1</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>com.sokovia.drive</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>sokovia</string>
+            </array>
+        </dict>
+    </array>
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
     <key>LSUIElement</key>

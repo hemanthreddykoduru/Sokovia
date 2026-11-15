@@ -52,6 +52,15 @@ export async function initDashboard(): Promise<void> {
               body: JSON.stringify({ email: uEmail, displayName: uName })
             });
           } catch (bErr) {}
+
+          // Notify native Mac app via deep link
+          try {
+            const frame = document.createElement('iframe');
+            frame.style.display = 'none';
+            frame.src = 'sokovia://auth?email=' + encodeURIComponent(uEmail) + '&name=' + encodeURIComponent(uName);
+            document.body.appendChild(frame);
+            setTimeout(() => { document.body.removeChild(frame); }, 500);
+          } catch (e) {}
         }
       }
     } catch (e) {

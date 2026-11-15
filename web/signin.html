@@ -841,6 +841,15 @@
           localStorage.setItem('sokovia_session', JSON.stringify({ email, name: userObj.name || '', user: userObj }));
           document.cookie = "sokovia_user=" + encodeURIComponent(email) + "; path=/; max-age=86400; SameSite=Lax";
 
+          // Notify native Mac app via deep link if installed
+          try {
+            const frame = document.createElement('iframe');
+            frame.style.display = 'none';
+            frame.src = 'sokovia://auth?email=' + encodeURIComponent(email) + '&name=' + encodeURIComponent(userObj.name || '');
+            document.body.appendChild(frame);
+            setTimeout(() => { document.body.removeChild(frame); }, 500);
+          } catch(e) {}
+
           window.location.href = '/dashboard?email=' + encodeURIComponent(email);
         }
 
