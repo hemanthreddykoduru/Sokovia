@@ -38,15 +38,27 @@ public final class MountManager: @unchecked Sendable {
             Thread.sleep(forTimeInterval: 0.5)
         }
 
-        // Use macOS native Finder WebDAV mounter with /Sokovia mount point
-        let hostName = "sokovia"
+        // Helumi Architecture:
+        // Mount native APFS disk image at /Volumes/Sokovia so macOS Finder recognizes it
+        // as a true local ejectable volume under Locations (not a network server).
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        let dir = appSupport.appendingPathComponent("Sokovia", isDirectory: true)
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let sparseImagePath = dir.appendingPathComponent("Sokovia.sparseimage").path
 
-        let script = "tell application \"Finder\" to mount volume \"http://\(hostName):\(port)/Sokovia\""
-        let proc = Process()
-        proc.launchPath = "/usr/bin/osascript"
-        proc.arguments = ["-e", script]
-        try? proc.run()
-        proc.waitUntilExit()
+        if !FileManager.default.fileExists(atPath: sparseImagePath) {
+            let createProc = Process()
+            createProc.launchPath = "/usr/bin/hdiutil"
+            createProc.arguments = ["create", "-size", "2t", "-type", "SPARSE", "-fs", "APFS", "-volname", "Sokovia", sparseImagePath]
+            try? createProc.run()
+            createProc.waitUntilExit()
+        }
+
+        let attachProc = Process()
+        attachProc.launchPath = "/usr/bin/hdiutil"
+        attachProc.arguments = ["attach", sparseImagePath]
+        try? attachProc.run()
+        attachProc.waitUntilExit()
 
         // Wait up to 5 seconds for mount to appear
         for _ in 0..<10 {
@@ -64,7 +76,19 @@ public final class MountManager: @unchecked Sendable {
                     task.waitUntilExit()
                 }
 
-                // Create a convenient symlink on the user desktop
+                // Sync existing cached files into /Volumes/Sokovia if present
+                let cacheDir = (NSHomeDirectory() as NSString).appendingPathComponent("Library/Caches/Sokovia/FileCache")
+                if let files = try? FileManager.default.contentsOfDirectory(atPath: cacheDir) {
+                    for f in files where !f.hasPrefix(".") {
+                        let src = (cacheDir as NSString).appendingPathComponent(f)
+                        let dst = (actual as NSString).appendingPathComponent(f)
+                        if !FileManager.default.fileExists(atPath: dst) {
+                            try? FileManager.default.copyItem(atPath: src, toPath: dst)
+                        }
+                    }
+                }
+
+                // Create desktop symlink
                 let desktopSymlink = (NSHomeDirectory() as NSString).appendingPathComponent("Desktop/Sokovia-Drive")
                 try? FileManager.default.removeItem(atPath: desktopSymlink)
                 try? FileManager.default.createSymbolicLink(atPath: desktopSymlink, withDestinationPath: actual)
@@ -98,13 +122,9 @@ public final class MountManager: @unchecked Sendable {
         tell application "Finder"
             activate
             try
-                open folder "Sokovia" of disk "sokovia"
+                open (POSIX file "\(mountPath)")
             on error
-                try
-                    open (POSIX file "\(mountPath)")
-                on error
-                    open disk "Sokovia"
-                end try
+                open disk "Sokovia"
             end try
         end tell
         """
