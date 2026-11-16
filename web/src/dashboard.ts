@@ -192,7 +192,7 @@ export async function initDashboard(): Promise<void> {
       if (parsed && parsed.name) {
         currentBucketName = parsed.name;
         const bucketEl = document.getElementById('settingsBucketName');
-        if (bucketEl) bucketEl.textContent = currentBucketName;
+        if (bucketEl) bucketEl.textContent = maskBucketName(currentBucketName);
       }
     }
     const cachedFiles = localStorage.getItem('sokovia_files_' + currentUserEmail);
@@ -599,7 +599,18 @@ export function toggleUpgradeSlider(): void {
   }
 }
 
-let totalStorageUsedBytes: number = 0;
+function maskBucketName(name: string): string {
+  if (!name) return 'sokovia-user-••••••••';
+  if (name.length <= 16) return name;
+  return name.slice(0, 13) + '••••••••';
+}
+
+function maskEmail(email: string): string {
+  if (!email || !email.includes('@')) return email;
+  const [user, domain] = email.split('@');
+  if (user.length <= 2) return `${user[0]}*@${domain}`;
+  return `${user.slice(0, 2)}•••••••@${domain}`;
+}
 
 export async function initDevicePairing(): Promise<void> {
   if (sessionStorage.getItem('sokovia_unlocked') === 'true') {
@@ -687,7 +698,7 @@ export async function loadBucketData(): Promise<void> {
       currentBucketName = data.bucket.name;
       localStorage.setItem('sokovia_bucket_' + currentUserEmail, JSON.stringify(data.bucket));
       const bucketEl = document.getElementById('settingsBucketName');
-      if (bucketEl) bucketEl.textContent = currentBucketName;
+      if (bucketEl) bucketEl.textContent = maskBucketName(currentBucketName);
       if (!fetchFilesPromise) {
         await fetchFiles();
       } else {
