@@ -100,3 +100,136 @@
               inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
               inset 0 -1px 2px 0 rgba(0, 0, 0, 0.03) !important;
 }
+
+/* ==========================================================================
+   Full Glassy UI Official Button Architecture (.lg-button)
+   Source: https://github.com/alexburlis/glassyui/blob/main/registry/glassyui/glass-button.tsx
+   ========================================================================== */
+
+.lg-button {
+  --lg-radius: 999px;
+  --lg-surface-blur: min(var(--lg-glass-blur), 16px);
+  --lg-ink: var(--lg-foreground);
+  --lg-button-fill: rgb(255 255 255 / 0.45);
+  --lg-button-fill-hover: rgb(255 255 255 / 0.65);
+  --lg-button-sheen: 0.35;
+  --lg-button-glow: 0.45;
+  --lg-button-glow-pressed: 0.75;
+  --lg-button-shine: var(--lg-button-glow);
+  --lg-button-shade: 52 62 84;
+  --lg-button-shade-near: 0.18;
+  --lg-button-shade-far: 0.2;
+  --lg-button-rise: 1;
+  --lg-button-rise-time: calc(var(--lg-motion-duration) * 1.6);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--lg-radius);
+  border: none;
+  background: transparent;
+  color: var(--lg-ink);
+  text-decoration: none;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  isolation: isolate;
+  cursor: pointer;
+  contain: layout paint style;
+  transition: --lg-button-rise var(--lg-button-rise-time) var(--lg-ease-out), transform 180ms ease, box-shadow 180ms ease;
+}
+
+@media (hover: hover) {
+  .lg-button:not(:disabled, [aria-disabled='true']):hover {
+    --lg-button-rise: 0.5;
+  }
+}
+
+.lg-button:active:not(:disabled, [aria-disabled='true']) {
+  --lg-button-rise: 0.2;
+  transform: scale(0.98);
+}
+
+.lg-button--primary,
+.lg-button--soft {
+  box-shadow:
+    0 calc(var(--lg-button-rise) * 1.8px) calc(var(--lg-button-rise) * 2px)
+      calc(var(--lg-button-rise) * -1px) rgb(var(--lg-button-shade) / var(--lg-button-shade-near)),
+    0 calc(var(--lg-button-rise) * 6.7px) calc(var(--lg-button-rise) * 10px)
+      calc(var(--lg-button-rise) * -5px) rgb(var(--lg-button-shade) / var(--lg-button-shade-far));
+}
+
+.lg-button__layers {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.lg-button__label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+}
+
+.lg-button__layers > span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.lg-button__distortion {
+  background: var(--lg-button-fill);
+  -webkit-backdrop-filter: blur(var(--lg-surface-blur)) saturate(var(--lg-glass-sat));
+  backdrop-filter: blur(var(--lg-surface-blur)) saturate(var(--lg-glass-sat));
+  transition: background-color var(--lg-motion-duration) ease;
+}
+
+.lg-button:not(:disabled, [aria-disabled='true']):hover .lg-button__distortion {
+  background: var(--lg-button-fill-hover);
+}
+
+.lg-button__tint {
+  background:
+    radial-gradient(
+      circle at 50% 30%,
+      rgb(255 255 255 / 0.15),
+      transparent 70%
+    ),
+    linear-gradient(180deg, rgb(255 255 255 / var(--lg-button-sheen)), transparent 60%);
+  box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.9), inset 0 -1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.lg-button__rim {
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.7);
+}
+
+/* Prominent Dark Variant */
+.lg-button--prominent {
+  background: #000000;
+  color: #ffffff;
+}
+
+.lg-button--prominent .lg-button__distortion {
+  background: #000000;
+}
+
+.lg-button--prominent:hover .lg-button__distortion {
+  background: #1c1c1e;
+}
+
+.lg-button--prominent .lg-button__tint {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 60%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35);
+}
+
+.lg-button--prominent .lg-button__rim {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
