@@ -1,0 +1,102 @@
+/* Glassy UI Core Design Tokens & Surface Physics
+   Adapted from https://github.com/alexburlis/glassyui
+   Optimized for Sokovia's Native macOS Liquid Glass Experience */
+
+:root {
+  --lg-glass-blur: 24px;
+  --lg-glass-sat: 1.9;
+  --lg-glass-contrast: 0.98;
+  --lg-glass-brightness: 1.04;
+  --lg-glass-alpha: 0.68;
+  --lg-bg: #f0f4f9;
+  --lg-foreground: #1d1d1f;
+  --lg-muted-foreground: rgba(0, 0, 0, 0.62);
+  --lg-border: rgba(255, 255, 255, 0.82);
+  --lg-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 16px 36px -8px rgba(18, 38, 72, 0.12);
+  --lg-shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.05), 0 28px 64px -14px rgba(18, 38, 72, 0.18);
+  --lg-rim-width: 1px;
+  --lg-radius-md: 16px;
+  --lg-radius-lg: 24px;
+  --lg-radius-full: 999px;
+  --lg-sheen-alpha: 0.12;
+  --lg-motion-duration: 220ms;
+  --lg-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Glassy UI Surface Component (.lg-glass-surface) */
+.lg-glass-surface {
+  position: relative;
+  isolation: isolate;
+  background: rgba(255, 255, 255, var(--lg-glass-alpha)) !important;
+  backdrop-filter: blur(var(--lg-glass-blur)) saturate(var(--lg-glass-sat)) contrast(var(--lg-glass-contrast)) brightness(var(--lg-glass-brightness));
+  -webkit-backdrop-filter: blur(var(--lg-glass-blur)) saturate(var(--lg-glass-sat)) contrast(var(--lg-glass-contrast)) brightness(var(--lg-glass-brightness));
+  border: 1px solid var(--lg-border) !important;
+  box-shadow: var(--lg-shadow),
+              inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.95),
+              inset 0 -1px 1.5px 0 rgba(0, 0, 0, 0.03) !important;
+  transition: box-shadow var(--lg-motion-duration) var(--lg-ease-out),
+              transform var(--lg-motion-duration) var(--lg-ease-out);
+}
+
+.lg-glass-surface:hover {
+  box-shadow: var(--lg-shadow-raised),
+              inset 0 1px 2px 0 rgba(255, 255, 255, 1),
+              inset 0 -1px 1.5px 0 rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Glassy UI Button (.lg-button) */
+.lg-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+  user-select: none;
+}
+
+.lg-button:active {
+  transform: scale(0.98);
+}
+
+.lg-button--prominent {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-radius: var(--lg-radius-full);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16), inset 0 1px 1px rgba(255, 255, 255, 0.28);
+}
+
+.lg-button--prominent:hover {
+  background: #1c1c1e !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+.lg-button--glass {
+  background: rgba(255, 255, 255, 0.76) !important;
+  color: var(--lg-foreground) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  border-radius: var(--lg-radius-full);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+}
+
+.lg-button--glass:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.09), inset 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+/* Glassy UI Navigation Dock (.lg-dock) */
+.lg-dock-shelf {
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(36px) saturate(210%) contrast(0.98);
+  -webkit-backdrop-filter: blur(36px) saturate(210%) contrast(0.98);
+  border: 1px solid rgba(255, 255, 255, 0.88) !important;
+  box-shadow: 0 20px 48px -10px rgba(18, 38, 72, 0.15),
+              0 0 0 1px rgba(255, 255, 255, 0.6),
+              inset 0 1.5px 2px 0 rgba(255, 255, 255, 1),
+              inset 0 -1px 2px 0 rgba(0, 0, 0, 0.03) !important;
+}
