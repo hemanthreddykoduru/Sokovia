@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Changelog · Sokovia</title>
+  <meta name="description" content="Latest releases, improvements, and new features for Sokovia native macOS cloud drive."/>
+  <link rel="icon" type="image/png" href="/favicon.png"/>
+  <link rel="apple-touch-icon" href="/icon.png"/>
+  <link rel="stylesheet" href="/glassyui.css"/>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card-bg: rgba(255, 255, 255, 0.72);
+      --ink: #1d1d1f;
+      --ink-2: #6e6e73;
+      --ink-3: #86868b;
+      --border: rgba(0, 0, 0, 0.08);
+      --accent: #0071e3;
+      --accent-soft: rgba(0, 113, 227, 0.08);
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+      --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      background: radial-gradient(at 0% 0%, rgba(142, 197, 252, 0.35) 0px, transparent 50%),
+                  radial-gradient(at 100% 0%, rgba(224, 195, 252, 0.3) 0px, transparent 50%),
+                  radial-gradient(at 50% 100%, rgba(161, 219, 255, 0.25) 0px, transparent 60%),
+                  #f0f4f9;
+      background-attachment: fixed;
+      scroll-behavior: smooth;
+    }
+    body {
+      color: var(--ink);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding: 40px 20px 80px;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+    .header-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+    }
+    .brand img {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+    }
+    .back-link {
+      color: var(--ink-2);
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: color 0.15s;
+    }
+    .back-link:hover {
+      color: var(--ink);
+    }
+    .hero {
+      margin-bottom: 44px;
+      text-align: left;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 44px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+    .hero p {
+      color: var(--ink-2);
+      font-size: 17px;
+      line-height: 1.45;
+    }
+    .timeline {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .entry-card {
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(36px) saturate(200%);
+      -webkit-backdrop-filter: blur(36px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 16px 40px -12px rgba(24, 48, 89, 0.08),
+                  inset 0 1px 2px 0 rgba(255, 255, 255, 0.95);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .entry-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 48px -12px rgba(24, 48, 89, 0.12),
+                  inset 0 1px 2px 0 rgba(255, 255, 255, 1);
+    }
+    .entry-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .version-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #000000;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      letter-spacing: -0.01em;
+    }
+    .badge-latest {
+      background: #0071e3;
+    }
+    .entry-date {
+      font-size: 13px;
+      color: var(--ink-3);
+      font-weight: 500;
+    }
+    .entry-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+      color: var(--ink);
+    }
+    .entry-desc {
+      color: var(--ink-2);
+      font-size: 15px;
+      margin-bottom: 18px;
+    }
+    .tag-list {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .tag {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--ink-2);
+    }
+    .tag.feature {
+      background: rgba(0, 113, 227, 0.08);
+      color: #0071e3;
+    }
+    .tag.security {
+      background: rgba(24, 112, 58, 0.08);
+      color: #18703a;
+    }
+    .tag.ui {
+      background: rgba(142, 68, 173, 0.08);
+      color: #8e44ad;
+    }
+    .changes-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .changes-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14.5px;
+      color: #333336;
+    }
+    .bullet {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #0071e3;
+      margin-top: 8px;
+      flex-shrink: 0;
+    }
+    footer {
+      margin-top: 60px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--ink-3);
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    footer a {
+      color: var(--ink-2);
+      text-decoration: none;
+      margin: 0 8px;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-nav">
+      <a href="/" class="brand">
+        <img src="/favicon.png" alt="Sokovia"/>
+        <span>sokovia</span>
+      </a>
+      <a href="/" class="back-link">← back to home</a>
+    </div>
+
+    <div class="hero">
+      <h1>changelog</h1>
+      <p>New updates, improvements, and releases for Sokovia.</p>
+    </div>
+
+    <div class="timeline">
+
+      <!-- Version 1.3.0 -->
+      <div class="entry-card lg-glass-surface">
+        <div class="entry-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="version-badge badge-latest">v1.3.0</span>
+            <span style="font-size:12px; color:#0071e3; font-weight:600;">Latest</span>
+          </div>
+          <span class="entry-date">November 2026</span>
+        </div>
+        <h2 class="entry-title">Glassy UI Surface Physics & Production Security Hardening</h2>
+        <p class="entry-desc">Refined optical physics with Glassy UI architecture, masked security identifiers, and live production payment activation.</p>
+        <div class="tag-list">
+          <span class="tag ui">Liquid Glass</span>
+          <span class="tag security">Security</span>
+          <span class="tag feature">Payments</span>
+        </div>
+        <ul class="changes-list">
+          <li>
+            <span class="bullet"></span>
+            <span><b>Glassy UI Layer Architecture:</b> Integrated official optical distortion, specular rim bevels, and springy interactive physics for hero CTAs and floating docks.</span>
+          </li>
+          <li>
+            <span class="bullet"></span>
+            <span><b>Identifier Masking:</b> Cloudflare storage bucket identifiers and internal hashes are masked across all dashboard tabs (`sokovia-user-••••••••`).</span>
+          </li>
+          <li>
+            <span class="bullet"></span>
+            <span><b>Global Finder Hotkey:</b> Enabled `⌃⌥O` (Control + Option + O) instant search to summon and reveal any cloud file directly in macOS Finder without local disk consumption.</span>
+          </li>
+          <li>
+            <span class="bullet"></span>
+            <span><b>Live Merchant Gateway:</b> Configured and verified end-to-end Razorpay live checkout gateway for automated monthly and annual subscriptions.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Version 1.2.0 -->
+      <div class="entry-card lg-glass-surface">
+        <div class="entry-header">
+          <span class="version-badge">v1.2.0</span>
+          <span class="entry-date">November 2026</span>
+        </div>
+        <h2 class="entry-title">Interactive macOS System Settings Storage Comparison</h2>
+        <p class="entry-desc">Added authentic macOS System Settings storage breakdown with dynamic persona switcher and real macOS wallpapers.</p>
+        <div class="tag-list">
+          <span class="tag ui">macOS Native</span>
+          <span class="tag feature">Visual Compare</span>
+        </div>
+        <ul class="changes-list">
+          <li>
+            <span class="bullet"></span>
+            <span><b>Storage Comparison Stage:</b> Pixel-accurate macOS System Settings Storage stage displaying local disk vs Sokovia cloud drive usage.</span>
+          </li>
+          <li>
+            <span class="bullet"></span>
+            <span><b>Persona Switcher:</b> Interactive chips for Video Editors, Photographers, Music Makers, Designers, Students, and Families with dynamic macOS wallpaper transitions.</span>
+          </li>
+          <li>
+            <span class="bullet"></span>
+            <span><b>Zero-Byte Streaming Metric:</b> Visual metrics demonstrating 0 bytes used locally with 0.8s playback streaming for high-bitrate media files.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Version 1.1.0 -->
+      <div class="entry-card lg-glass-surface">
+        <div class="entry-header">
+          <span class="version-badge">v1.1.0</span>
+          <span class="entry-date">November 2026</span>
+        </div>
+        <h2 class="entry-title">Pixel-Perfect macOS Finder Window Mockup</h2>
+        <p class="entry-desc">Landing page overhaul featuring real macOS stoplight buttons, full sidebar navigation, and local high-res creative assets.</p>
+        <div class="tag-list">
+          <span class="tag ui">Finder Mockup</span>
+          <span class="tag feature">Landing Page</span>
+        </div>
+        <ul class="changes-list">
+          <li>
+            <span class="bullet"></span>
+            <span><b>Two-Column Finder Mockup:</b> Complete macOS Finder structure with Favorites, Locations, and live path breadcrumb bar.</span>
+          </li>
+          <li>
+            <span class="bullet"></span>
+            <span><b>Media Previews:</b> Rich thumbnails for video projects, RAW photo shoots, audio stems, and design decks.</span>
+          </li>
+          <li>
+            <span class="bullet"></span>
+            <span><b>Refractive Pill Navigation:</b> Floating frosted glass header capsule with subtle specular light rim.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Version 1.0.0 -->
+      <div class="entry-card lg-glass-surface">
+        <div class="entry-header">
+          <span class="version-badge">v1.0.0</span>
+          <span class="entry-date">November 2026</span>
+        </div>
+        <h2 class="entry-title">Initial Release: Sokovia macOS Cloud Drive</h2>
+        <p class="entry-desc">The initial launch of Sokovia — providing infinite cloud storage directly in macOS Finder backed by Cloudflare R2 and InsForge.</p>
+        <div class="tag-list">
+          <span class="tag feature">Core Release</span>
+          <span class="tag security">AES-GCM-256</span>
+        </div>
+        <ul class="changes-list">
+          <li>
+            <span class="bullet"></span>
+            <span><b>Native VFS Mount:</b> Mounts seamlessly at `/Volumes/Sokovia` with zero local storage footprint.</span>
+          </li>
+          <li>
+            <span class="bullet"></span>
+            <span><b>Zero-Knowledge Encryption:</b> Client-side AES-GCM-256 file encryption with local recovery key backup.</span>
+          </li>
+          <li>
+            <span class="bullet"></span>
+            <span><b>Cloudflare R2 Backend:</b> High-speed bucket provisioning with zero egress charges.</span>
+          </li>
+          <li>
+            <span class="bullet"></span>
+            <span><b>Cross-Device Pairing:</b> 6-digit cryptographic pairing code to unlock private files on any web browser.</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <footer>
+      <div style="margin-bottom: 12px;">
+        <a href="/">home</a> ·
+        <a href="/changelog">changelog</a> ·
+        <a href="/privacy.html">privacy policy</a> ·
+        <a href="/terms.html">terms & conditions</a> ·
+        <a href="/refund.html">cancellation & refund</a> ·
+        <a href="/shipping.html">shipping</a> ·
+        <a href="/contact.html">contact us</a>
+      </div>
+      <div>
+        sokovia · native macos virtual drive · © 2026 sokovia
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
