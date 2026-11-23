@@ -301,7 +301,16 @@
       border-radius: 0 0 var(--r, 0px) var(--r, 0px);
       touch-action: manipulation;
     }
-    #art {
+    #sokoviaCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      pointer-events: none;
+      z-index: 1;
+    }
+    #art_old {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -1046,34 +1055,55 @@
 
   <!-- ═══════════════ HERO SECTION ═══════════════ -->
     <!-- ═════════ HERO: Parsewave edge-aware ASCII hands + Sokovia copy ═════════ -->
+    <!-- ═════════ HERO: SOKOVIA BESPOKE INDUSTRIAL ARCHITECTURE ═════════ -->
   <section class="hero" id="top" aria-labelledby="h1">
-    <canvas id="art" aria-hidden="true"></canvas>
+    <!-- Interactive Storage Halftone Radar Canvas -->
+    <canvas id="sokoviaCanvas" aria-hidden="true"></canvas>
 
     <div class="hgroup">
-      <p class="eyebrow caps"><b aria-hidden="true">[</b> Native macOS Virtual File System · Cloudflare R2 <b aria-hidden="true">]</b></p>
-      <h1 id="h1">Infinite storage,<br>parsed into Finder.</h1>
+      <p class="eyebrow caps"><b aria-hidden="true">[</b> Virtual APFS Driver · Cloudflare R2 Backbone <b aria-hidden="true">]</b></p>
+      <h1 id="h1">Infinite storage,<br>mounted in Finder.</h1>
     </div>
 
     <div class="lead">
-      <p class="lede"><strong>Terabytes in Finder, zero bytes on your local disk.</strong> Files open instantly, stream on demand, and encrypt client-side with AES-GCM-256 before ever touching the network.</p>
+      <p class="lede">
+        <strong>Decouple your MacBook from internal SSD limits.</strong> Sokovia mounts remote object buckets into native macOS Finder with on-demand chunk streaming, client-side AES-GCM encryption, and zero local footprint.
+      </p>
       <div class="ctas">
-        <a class="btn" href="/downloads/Sokovia-macOS.dmg" download><span data-scramble>Download for macOS</span> <span class="arr">→</span></a>
-        <a class="btn ghost" href="#spec"><span data-scramble>Explore pricing</span> <span class="arr">↓</span></a>
+        <a class="btn" href="/downloads/Sokovia-macOS.dmg" download>
+          <span>Download for macOS</span> <span class="arr">↓</span>
+        </a>
+        <a class="btn ghost" href="#spec">
+          <span>Calculate pricing</span> <span class="arr">→</span>
+        </a>
       </div>
-      <div class="hr-new" data-pw-where="hero_status">
-        <p class="hr-top caps"><i aria-hidden="true"></i><span class="hr-l"><span data-new="2026-11-24">Live </span>daemon</span><span class="hr-d"><span aria-hidden="true">· </span><time datetime="2026-11-24">v1.3.0</time></span><span class="rule" data-rule="─" aria-hidden="true"></span><a class="hr-all" href="/changelog">Changelog <span class="arr" aria-hidden="true">→</span></a></p>
-        <p class="hr-p"><a class="hr-a rs-go" href="#architecture">Kernel APFS mount attached under <mark>/Volumes/Sokovia</mark><span class="arr" aria-hidden="true">&nbsp;→</span></a></p>
+      <div class="hr-new">
+        <p class="hr-top caps">
+          <i aria-hidden="true"></i>
+          <span>Mount Target</span>
+          <span class="rule" aria-hidden="true"></span>
+          <span style="color:var(--olive);">Active</span>
+        </p>
+        <p class="hr-p">
+          Kernel APFS volume: <mark>/Volumes/Sokovia</mark> via WebDAV pipeline.
+        </p>
       </div>
     </div>
 
-    <span class="tag t-h" aria-hidden="true"><i></i>Human expert</span>
-    <span class="tag t-m" aria-hidden="true">Model<i></i></span>
+    <!-- Floating Technical Badges -->
+    <div class="tag t-h on" style="transform: translate(calc(58vw - 180px), 240px);">
+      <i></i><span>Virtual Inodes</span>
+    </div>
+    <div class="tag t-m on" style="transform: translate(calc(58vw + 100px), 480px);">
+      <i></i><span>R2 Zero Egress</span>
+    </div>
 
+    <!-- 4-Column Technical Metrics Strip -->
     <ul class="facts">
       <li><i>01</i>0 Bytes Local Footprint</li>
-      <li><i>02</i>AES-GCM-256 Encrypted</li>
-      <li><i>03</i>Zero Cloudflare Egress Fees</li>
-      <li><i>04</i>Native APFS Volume</li>
+      <li><i>02</i>AES-GCM-256 Client-Side</li>
+      <li><i>03</i>Zero Egress Fees (R2)</li>
+      <li><i>04</i>Native macOS APFS Driver</li>
     </ul>
   </section>
 
@@ -1434,7 +1464,7 @@
   <script src="/assets/ScrollTrigger.min.30821939.js"></script>
   <script src="/assets/lenis.min.67f0fe0c.js"></script>
   <!-- Parsewave edge-aware ASCII Hands engine -->
-  <script src="/hero_hands_bundle.js"></script>
+  <script src="/sokovia_hero_engine.js"></script>
 
   <script>
     // Dynamic header color invert on dark sections
