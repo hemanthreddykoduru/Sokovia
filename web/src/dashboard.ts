@@ -15,6 +15,7 @@ let currentPlanQuotaBytes: number = 5 * 1024 * 1024 * 1024; // Default 5 GB free
 let currentActivePlanStorage: string = '5 GB free';
 let currentActiveBillingCycle: string = 'free';
 let loadedFiles: BucketFile[] = [];
+let hasFetchedFilesOnce: boolean = false;
 let pairingPollTimer: any = null;
 let currentPairingId: string | null = null;
 
@@ -195,10 +196,10 @@ export async function initDashboard(): Promise<void> {
         if (bucketEl) bucketEl.textContent = maskBucketName(currentBucketName);
       }
     }
-    const cachedFiles = localStorage.getItem('sokovia_files_' + currentUserEmail);
     if (cachedFiles) {
       const parsed = JSON.parse(cachedFiles);
       if (parsed && parsed.files) {
+        hasFetchedFilesOnce = true;
         loadedFiles = parsed.files;
         renderFilesUI(parsed.files, parsed.folders || [], parsed.storageUsedBytes || 0);
       }
@@ -576,8 +577,23 @@ export function applyActivePlanUI(storage: string, cycle: string, amountInr?: nu
     setPlanStep(matchedIdx);
   }
 
-  // Re-render storage meter with new quota
-  renderFilesUI(loadedFiles, [], totalStorageUsedBytes);
+  // Update storage meter bar and numbers
+  updateStorageMeter(totalStorageUsedBytes);
+}
+
+export function updateStorageMeter(totalBytes: number): void {
+  totalStorageUsedBytes = totalBytes;
+  const maxBytes = currentPlanQuotaBytes || (5 * 1024 * 1024 * 1024);
+  const pct = Math.min(100, Math.max(1, (totalBytes / maxBytes) * 100));
+  const freeBytes = Math.max(0, maxBytes - totalBytes);
+
+  const barFill = document.getElementById('storageBarFill');
+  const usedText = document.getElementById('storageUsedText');
+  const freeText = document.getElementById('storageFreeText');
+
+  if (barFill) barFill.style.width = pct + '%';
+  if (usedText) usedText.textContent = formatBytes(totalBytes);
+  if (freeText) freeText.textContent = formatBytes(freeBytes) + ' free';
 }
 
 export function toggleUpgradeSlider(): void {
@@ -690,7 +706,10 @@ export async function loadBucketData(): Promise<void> {
       try { knownBucketName = JSON.parse(cachedBucket).name; } catch (e) {}
     }
 
-    const fetchFilesPromise = knownBucketName ? fetchFiles() : null;
+    // If bucket name is already known, trigger file fetch immediately without blocking
+    if (knownBucketName && !hasFetchedFilesOnce) {
+      fetchFiles();
+    }
 
     const res = await fetch('https://26u7vqfh.function2.insforge.app/provision-user-bucket', {
       method: 'POST',
@@ -700,18 +719,24 @@ export async function loadBucketData(): Promise<void> {
     const data = await res.json();
 
     if (data.success && data.bucket) {
+      const oldBucket = currentBucketName;
       currentBucketName = data.bucket.name;
       localStorage.setItem('sokovia_bucket_' + currentUserEmail, JSON.stringify(data.bucket));
       const bucketEl = document.getElementById('settingsBucketName');
       if (bucketEl) bucketEl.textContent = maskBucketName(currentBucketName);
-      if (!fetchFilesPromise) {
+      if (!hasFetchedFilesOnce || oldBucket !== currentBucketName) {
         await fetchFiles();
-      } else {
-        await fetchFilesPromise;
       }
+    } else if (!hasFetchedFilesOnce) {
+      hasFetchedFilesOnce = true;
+      renderFilesUI([], [], 0);
     }
   } catch (err) {
     console.error('Bucket load error:', err);
+    if (!hasFetchedFilesOnce) {
+      hasFetchedFilesOnce = true;
+      renderFilesUI([], [], 0);
+    }
   }
 }
 
@@ -727,12 +752,18 @@ export async function fetchFiles(): Promise<void> {
     const data = await res.json();
 
     if (data.success && data.files) {
+      hasFetchedFilesOnce = true;
       loadedFiles = data.files;
       localStorage.setItem('sokovia_files_' + currentUserEmail, JSON.stringify(data));
       renderFilesUI(data.files, data.folders || [], data.storageUsedBytes || 0);
+    } else {
+      hasFetchedFilesOnce = true;
+      renderFilesUI([], [], 0);
     }
   } catch (err) {
     console.error('Files fetch error:', err);
+    hasFetchedFilesOnce = true;
+    renderFilesUI(loadedFiles || [], [], totalStorageUsedBytes || 0);
   }
 }
 
