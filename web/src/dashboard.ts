@@ -14,6 +14,7 @@ let currentUserRecoveryKey: string = '';
 let currentPlanQuotaBytes: number = 5 * 1024 * 1024 * 1024; // Default 5 GB free
 let currentActivePlanStorage: string = '5 GB free';
 let currentActiveBillingCycle: string = 'free';
+let totalStorageUsedBytes: number = 0;
 let loadedFiles: BucketFile[] = [];
 let hasFetchedFilesOnce: boolean = false;
 let pairingPollTimer: any = null;
@@ -204,6 +205,10 @@ export async function initDashboard(): Promise<void> {
         loadedFiles = parsed.files;
         renderFilesUI(parsed.files, parsed.folders || [], parsed.storageUsedBytes || 0);
       }
+    } else {
+      // Default to empty counts so skeletons don't linger while network request finishes
+      const countsSub = document.getElementById('statsCountsSub');
+      if (countsSub) countsSub.textContent = '0 files in bucket';
     }
   } catch (e) {}
 
@@ -582,18 +587,19 @@ export function applyActivePlanUI(storage: string, cycle: string, amountInr?: nu
   updateStorageMeter(totalStorageUsedBytes);
 }
 
-export function updateStorageMeter(totalBytes: number): void {
-  totalStorageUsedBytes = totalBytes;
+export function updateStorageMeter(totalBytes: number = 0): void {
+  const safeBytes = typeof totalBytes === 'number' && !isNaN(totalBytes) ? totalBytes : 0;
+  totalStorageUsedBytes = safeBytes;
   const maxBytes = currentPlanQuotaBytes || (5 * 1024 * 1024 * 1024);
-  const pct = Math.min(100, Math.max(1, (totalBytes / maxBytes) * 100));
-  const freeBytes = Math.max(0, maxBytes - totalBytes);
+  const pct = Math.min(100, Math.max(1, (safeBytes / maxBytes) * 100));
+  const freeBytes = Math.max(0, maxBytes - safeBytes);
 
   const barFill = document.getElementById('storageBarFill');
   const usedText = document.getElementById('storageUsedText');
   const freeText = document.getElementById('storageFreeText');
 
   if (barFill) barFill.style.width = pct + '%';
-  if (usedText) usedText.textContent = formatBytes(totalBytes);
+  if (usedText) usedText.textContent = formatBytes(safeBytes);
   if (freeText) freeText.textContent = formatBytes(freeBytes) + ' free';
 }
 
