@@ -852,6 +852,63 @@
       padding: 12px 14px;
       border-radius: 12px;
     }
+
+    /* Mobile Responsiveness & iPhone safe-areas */
+    @media (max-width: 680px) {
+      .app-wrap {
+        padding: 0 14px calc(110px + env(safe-area-inset-bottom, 20px));
+      }
+      .profile-card, .unlock-card, .plan-card, .current-plan-hero {
+        padding: 22px 16px;
+        border-radius: 20px;
+      }
+      .settings-card {
+        padding: 18px 16px;
+        border-radius: 18px;
+      }
+      .settings-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .settings-row .btn-pill-sm {
+        align-self: flex-start;
+      }
+      .plan-ticks {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        gap: 12px;
+        padding-bottom: 6px;
+      }
+      .plan-ticks::-webkit-scrollbar {
+        display: none;
+      }
+      .plan-ticks span {
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .bottom-dock-wrap {
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+        padding: 0 12px;
+      }
+      .bottom-dock {
+        padding: 4px 6px;
+        gap: 2px;
+        max-width: 100%;
+        box-shadow: 0 14px 36px -8px rgba(20, 35, 70, 0.18),
+                    0 0 0 1px rgba(255, 255, 255, 0.8),
+                    inset 0 1.5px 2px 0 rgba(255, 255, 255, 1);
+      }
+      .dock-btn {
+        width: 52px;
+        height: 44px;
+        font-size: 9.5px;
+      }
+      .dock-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
   </style>
   <!-- Compiled TypeScript Application Bundle -->
   <script src="/dist/dashboard.js?v=2" defer></script>

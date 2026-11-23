@@ -601,8 +601,13 @@ export function toggleUpgradeSlider(): void {
 
 function maskBucketName(name: string): string {
   if (!name) return 'sokovia-user-••••••••';
-  if (name.length <= 16) return name;
-  return name.slice(0, 13) + '••••••••';
+  if (name.startsWith('sokovia-user-')) {
+    const raw = name.replace('sokovia-user-', '');
+    if (raw.length <= 4) return 'sokovia-user-••••••••';
+    return `sokovia-user-${raw.slice(0, 4)}••••••••`;
+  }
+  if (name.length <= 8) return 'sokovia-••••••••';
+  return name.slice(0, 8) + '••••••••';
 }
 
 function maskEmail(email: string): string {

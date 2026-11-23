@@ -706,10 +706,184 @@
       color: var(--ink-3);
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 680px) {
       .finder-nav { display: none; }
       .finder-layout { grid-template-columns: 1fr; }
       .auth-card { padding: 24px 20px; }
+      
+      /* Mobile Navigation Capsule */
+      .nav-wrap {
+        padding: 0 12px;
+      }
+      .nav {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 5px 6px;
+        gap: 2px;
+      }
+      .nav::-webkit-scrollbar {
+        display: none;
+      }
+      .nav a, .nav button {
+        padding: 0 10px;
+        font-size: 12.5px;
+        height: 28px;
+        flex-shrink: 0;
+      }
+      .nav-logo {
+        padding-right: 6px;
+        font-size: 13px;
+        flex-shrink: 0;
+      }
+      
+      /* Hero and Content on Mobile */
+      .wrap {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      .hero {
+        padding-top: 84px;
+        padding-bottom: 30px;
+      }
+      .hero h1 {
+        font-size: clamp(26px, 7vw, 36px);
+        letter-spacing: -0.025em;
+        line-height: 1.15;
+      }
+      .hero p.lead {
+        font-size: 15px;
+        margin-bottom: 24px;
+      }
+      .cta-row {
+        flex-direction: column;
+        width: 100%;
+        max-width: 320px;
+        margin: 0 auto;
+        gap: 10px;
+      }
+      .cta-row .lg-button {
+        width: 100%;
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+      
+      /* Mac Finder Window on Mobile */
+      .f-window {
+        grid-template-columns: 1fr !important;
+        min-height: auto !important;
+      }
+      .f-side {
+        display: none !important;
+      }
+      .f-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 16px 6px !important;
+        padding: 16px 8px 24px !important;
+      }
+      .f-icon {
+        width: 54px !important;
+        height: 48px !important;
+      }
+      .f-folder {
+        width: 42px !important;
+      }
+      .f-doc {
+        width: 30px !important;
+      }
+      .f-name {
+        font-size: 11px !important;
+      }
+      .f-toolbar {
+        padding: 8px 10px !important;
+        gap: 6px !important;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .f-toolbar::-webkit-scrollbar {
+        display: none;
+      }
+      .f-toolbar .f-capsule:not(:first-child):not(.round) {
+        display: none !important;
+      }
+      .f-path {
+        overflow-x: auto;
+        white-space: nowrap;
+        font-size: 10.5px;
+        padding: 8px 12px;
+      }
+      
+      /* System Settings Stage on Mobile */
+      .ek-stage {
+        aspect-ratio: 4/5 !important;
+        border-radius: 16px !important;
+        margin: 20px auto !important;
+      }
+      .ek-scene {
+        inset: 20px 0 0 16px !important;
+      }
+      .ek-chips {
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+      .ek-chips button {
+        font-size: 12.5px;
+        height: 28px;
+        padding: 0 10px;
+      }
+      
+      /* Pricing Card on Mobile */
+      .pricing-card-wrap {
+        padding: 24px 18px !important;
+        border-radius: 20px !important;
+        margin-bottom: 40px;
+      }
+      .landing-plan-price {
+        font-size: 40px !important;
+      }
+      .landing-ticks {
+        overflow-x: auto;
+        padding-bottom: 4px;
+        gap: 8px;
+        font-size: 10.5px;
+        scrollbar-width: none;
+      }
+      .landing-ticks::-webkit-scrollbar {
+        display: none;
+      }
+      .landing-ticks span {
+        flex-shrink: 0;
+      }
+      
+      /* Notes, Badges, Facts on Mobile */
+      .notes {
+        padding: 30px 0 !important;
+      }
+      .note {
+        padding: 24px 16px !important;
+        margin-bottom: 20px !important;
+      }
+      .facts {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+      }
+      .facts div {
+        padding: 12px 14px !important;
+      }
+      .feature-list {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+      
+      /* FAQ and Footer on Mobile */
+      .faq-card {
+        padding: 24px 16px !important;
+      }
+      footer .wrap div {
+        gap: 12px !important;
+        font-size: 12px;
+      }
     }
   
 /* Helumi-Identical Pixel-Perfect Mac Finder Window */
@@ -807,65 +981,62 @@
 .f-info-checks span{align-items:center;gap:6px;display:flex}
 .f-info-checks i{border:1px solid #c7c7cc;border-radius:3px;width:12px;height:12px}
 .f-cursor{width:16px;height:20px;left:calc(var(--cx,.55) * 100%);top:calc(var(--cy,.8) * 100%);transition:left .7s var(--ease-out), top .7s var(--ease-out);pointer-events:none;position:absolute}
-/* Responsive queries for small mobile screens only */
-@media (max-width: 680px) {
-  .f-window { grid-template-columns: 1fr !important; }
-  .f-side, .f-toolbar .f-capsule:not(:first-child):not(.round) { display: none !important; }
-  .f-grid { grid-template-columns: repeat(3, 1fr) !important; }
-}
 
-/* Desktop styles: Always show the full sidebar! */
-.f-window {
-  grid-template-columns: 184px 1fr !important;
-  min-height: 536px;
-  display: grid !important;
-}
-.f-side {
-  display: block !important;
-  background: #f2f2f4 !important;
-  border: 1px solid #00000009 !important;
-  border-radius: 16px !important;
-  margin: 7px 0 7px 7px !important;
-  padding: 14px 8px !important;
-}
-.f-side-item {
-  height: 26px;
-  padding: 0 8px;
-  border-radius: 7px;
-  align-items: center;
-  gap: 7px;
-  display: flex !important;
-  font-size: 12px;
-  color: #1d1d1f;
-  cursor: default;
-}
-.f-side-item.active {
-  background: #00000014 !important;
-  font-weight: 600 !important;
-}
-.f-lights-finder {
-  padding: 0 4px !important;
-  margin-bottom: 18px !important;
-  display: flex !important;
-  gap: 8px !important;
-}
-.f-lights-finder i {
-  width: 12px !important;
-  height: 12px !important;
-  border-radius: 50% !important;
-  display: inline-block !important;
-}
-.f-lights-finder i:nth-child(1) { background: #ff5f56 !important; border: 1px solid #e0443e !important; }
-.f-lights-finder i:nth-child(2) { background: #ffbd2e !important; border: 1px solid #dea123 !important; }
-.f-lights-finder i:nth-child(3) { background: #27c93f !important; border: 1px solid #1aab29 !important; }
-.f-grid {
-  grid-template-columns: repeat(5, 1fr) !important;
-  gap: 22px 8px !important;
-  padding: 24px 14px 32px !important;
-  display: grid !important;
-}
-.f-toolbar .f-capsule {
-  display: inline-flex !important;
+
+/* Desktop styles: Always show the full sidebar on screens >= 681px */
+@media (min-width: 681px) {
+  .f-window {
+    grid-template-columns: 184px 1fr !important;
+    min-height: 536px;
+    display: grid !important;
+  }
+  .f-side {
+    display: block !important;
+    background: #f2f2f4 !important;
+    border: 1px solid #00000009 !important;
+    border-radius: 16px !important;
+    margin: 7px 0 7px 7px !important;
+    padding: 14px 8px !important;
+  }
+  .f-side-item {
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 7px;
+    align-items: center;
+    gap: 7px;
+    display: flex !important;
+    font-size: 12px;
+    color: #1d1d1f;
+    cursor: default;
+  }
+  .f-side-item.active {
+    background: #00000014 !important;
+    font-weight: 600 !important;
+  }
+  .f-lights-finder {
+    padding: 0 4px !important;
+    margin-bottom: 18px !important;
+    display: flex !important;
+    gap: 8px !important;
+  }
+  .f-lights-finder i {
+    width: 12px !important;
+    height: 12px !important;
+    border-radius: 50% !important;
+    display: inline-block !important;
+  }
+  .f-lights-finder i:nth-child(1) { background: #ff5f56 !important; border: 1px solid #e0443e !important; }
+  .f-lights-finder i:nth-child(2) { background: #ffbd2e !important; border: 1px solid #dea123 !important; }
+  .f-lights-finder i:nth-child(3) { background: #27c93f !important; border: 1px solid #1aab29 !important; }
+  .f-grid {
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 22px 8px !important;
+    padding: 24px 14px 32px !important;
+    display: grid !important;
+  }
+  .f-toolbar .f-capsule {
+    display: inline-flex !important;
+  }
 }
 
 
