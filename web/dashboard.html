@@ -890,23 +890,30 @@
       .bottom-dock-wrap {
         bottom: calc(16px + env(safe-area-inset-bottom, 0px));
         padding: 0 12px;
+        box-sizing: border-box;
       }
       .bottom-dock {
         padding: 4px 6px;
-        gap: 2px;
-        max-width: 100%;
+        gap: 0;
+        width: 100%;
+        max-width: 360px;
+        justify-content: space-around;
+        box-sizing: border-box;
         box-shadow: 0 14px 36px -8px rgba(20, 35, 70, 0.18),
                     0 0 0 1px rgba(255, 255, 255, 0.8),
                     inset 0 1.5px 2px 0 rgba(255, 255, 255, 1);
       }
       .dock-btn {
-        width: 52px;
-        height: 44px;
-        font-size: 9.5px;
+        flex: 1;
+        max-width: 64px;
+        width: auto;
+        height: 46px;
+        font-size: 10px;
+        gap: 2px;
       }
       .dock-btn svg {
-        width: 16px;
-        height: 16px;
+        width: 17px;
+        height: 17px;
       }
     }
   </style>

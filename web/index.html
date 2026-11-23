@@ -93,8 +93,13 @@
       border-radius: 999px;
       display: flex;
       align-items: center;
-      gap: 2px;
+      gap: 4px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--border);
+    }
+    .nav-links {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
     }
     .nav a, .nav button {
       height: 32px;
@@ -713,29 +718,43 @@
       
       /* Mobile Navigation Capsule */
       .nav-wrap {
+        top: 12px;
         padding: 0 12px;
+        width: 100%;
+        box-sizing: border-box;
       }
       .nav {
-        max-width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding: 5px 6px;
-        gap: 2px;
+        width: 100%;
+        max-width: 440px;
+        justify-content: space-between;
+        padding: 6px 8px;
+        gap: 6px;
+        box-sizing: border-box;
       }
-      .nav::-webkit-scrollbar {
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .nav a.nav-item-secondary {
         display: none;
       }
       .nav a, .nav button {
-        padding: 0 10px;
-        font-size: 12.5px;
-        height: 28px;
+        padding: 0 12px;
+        font-size: 13px;
+        height: 32px;
         flex-shrink: 0;
       }
       .nav-logo {
-        padding-right: 6px;
-        font-size: 13px;
+        padding: 0 6px 0 2px;
+        font-size: 14px;
         flex-shrink: 0;
+      }
+      .nav-cta-btn {
+        background: #000000 !important;
+        color: #ffffff !important;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
       }
       
       /* Hero and Content on Mobile */
@@ -1536,12 +1555,14 @@
   <!-- Floating Nav Bar -->
   <div class="nav-wrap">
     <nav class="nav lg-glass-surface lg-dock-shelf" style="border-radius: 999px;">
-      <span class="nav-logo"><span class="nav-logo-icon"><img src="/favicon.png" alt="Sokovia"/></span>sokovia</span>
-      <a href="#how" class="active">how it works</a>
-      <a href="#pricing">plans</a>
-      <a href="#faq">faq</a>
-      <a href="/login" id="navAuthBtn">login / sign up</a>
-      <a href="/downloads/Sokovia-macOS.dmg" download>download for mac</a>
+      <a href="/" class="nav-logo"><span class="nav-logo-icon"><img src="/favicon.png" alt="Sokovia"/></span>sokovia</a>
+      <div class="nav-links">
+        <a href="#how" class="nav-item-secondary active">how it works</a>
+        <a href="#pricing" class="nav-item-secondary">plans</a>
+        <a href="#faq" class="nav-item-secondary">faq</a>
+        <a href="/login" id="navAuthBtn" class="nav-cta-btn">login / sign up</a>
+        <a href="/downloads/Sokovia-macOS.dmg" download class="nav-item-secondary">download</a>
+      </div>
     </nav>
   </div>
 
