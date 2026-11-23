@@ -8,7 +8,7 @@ const SRC = { HL: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBA
 
 const PW = (() => {
   const RM = root.classList.contains('rm');
-  const touch = matchMedia('(hover: none), (pointer: coarse)').matches;
+  const touch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
   const MONO = '"Geist Mono", ui-monospace, Menlo, monospace';
   const dpr = () => Math.min(2, window.devicePixelRatio || 1);
   const hsh = a => { a |= 0; a = Math.imul(a ^ (a >>> 16), 0x45d9f3b); a = Math.imul(a ^ (a >>> 16), 0x45d9f3b); return ((a ^ (a >>> 16)) >>> 0) / 4294967296; };
@@ -145,68 +145,7 @@ const PW = (() => {
   }
   return { RM, touch, MONO, dpr, hsh, cl, sstep, eIO, atlas, grid, field, sample, edge, loop: { add }, anim: f => anims.push(f), scroll, start, scramble };
 })();
-PW.start(); // before any module registers ScrollTriggers
-
-/* ═══════════════ NAV: aino rule, scramble labels, theme, mobile menu, anchors ═══════════════ */
-const Nav = (() => {
-  const nav = $('#nav'), btn = $('#menu-btn'), menu = $('#menu'), lab = btn.querySelector('.lab');
-  $$('[data-rule]').forEach(el => el.textContent = el.dataset.rule.repeat(300));
-  $$('[data-new]').forEach(el => { if (!(Date.now() - Date.parse(el.dataset.new) < 30 * 864e5)) el.remove(); });
-  $$('[data-scramble]').forEach(el => {
-    const host = el.closest('a,button') || el, go = () => PW.scramble(el);
-    if (!host.hasAttribute('aria-label') && host.id !== 'menu-btn') host.setAttribute('aria-label', host.textContent.replace(/[→↓]/g, '').replace(/\s+/g, ' ').trim()); // scrambled frames are never announced
-    host.addEventListener('pointerenter', go);
-  });
-  let open = false, ranges = [], anchorY = {};
-  function setMenu(v, refocus = true) {
-    if (v === open) return; open = v;
-    menu.classList.toggle('open', v); btn.setAttribute('aria-expanded', v); $('main').inert = v; // the page behind the sheet can't take focus
-    lab.textContent = v ? 'Close' : 'Menu'; btn.setAttribute('aria-label', v ? 'Close menu' : 'Menu');
-    if (PW.scroll.lenis) v ? PW.scroll.lenis.stop() : PW.scroll.lenis.start();
-    if (v) setTimeout(() => menu.querySelector('a').focus({ preventScroll: true }), 60); else if (refocus && btn.offsetWidth) btn.focus({ preventScroll: true }); // M6: never onto a hidden button
-  }
-  btn.addEventListener('click', () => setMenu(!open));
-  matchMedia('(min-width:1200px)').addEventListener('change', e => { if (e.matches) setMenu(false); }); // M6: the menu's toggle is hidden from 1200px
-  addEventListener('keydown', e => { if (e.key === 'Escape' && open) setMenu(false); });
-  document.addEventListener('click', e => {
-    const a = e.target.closest('a[href^="#"]'); if (!a) return;
-    const id = a.getAttribute('href'); let el = null;
-    try { el = id.length > 1 && document.getElementById(decodeURIComponent(id.slice(1))); } catch (err) {} // not an element id: the browser navigates
-    if (!el) return;
-    e.preventDefault(); if (open) setMenu(false, false);
-    if (location.hash !== id) history.pushState(null, '', id); // before the scroll, so Back returns to the link (an instant scroll would be saved instead)
-    const y = id in anchorY ? anchorY[id] : el.getBoundingClientRect().top + scrollY - (id === '#sample' ? 0 : parseFloat(getComputedStyle(el).scrollMarginTop) || 24);
-    if (PW.scroll.lenis) PW.scroll.lenis.scrollTo(y, { duration: 1.4 }); else scrollTo({ top: y, behavior: PW.RM ? 'auto' : 'smooth' });
-    if (!el.hasAttribute('tabindex')) el.tabIndex = -1;
-    el.focus({ preventScroll: true }); // the next Tab continues from the target, not from the link
-  });
-  // the nav inverts over dark sections; ranges are measured at layout, checked each frame (no layout reads)
-  let landed = false;
-  function measure(extra, anchors) {
-    anchorY = anchors;
-    if (!landed && location.hash in anchors) { landed = true; scrollTo(0, anchors[location.hash]); }
-    ranges = [extra, ...$$('main > [data-theme=dark]').map(el => { const t = el.getBoundingClientRect().top + scrollY; return [t, t + el.offsetHeight]; })];
-  }
-  let dk = false;
-  PW.loop.add(() => { const y = PW.scroll.y + 28; let v = false; for (const r of ranges) if (y >= r[0] && y < r[1]) { v = true; break; } if (v !== dk) { dk = v; nav.classList.toggle('dark', v); } });
-  return { measure };
-})();
-
-/* ═══════════════ LOADER: /parsewave/ decodes from the glyph ramp, then lifts like the paper sheet ═══════════════ */
-const Loader = (() => {
-  const el = $('#loader');
-  if (!root.classList.contains('ld')) { el.remove(); return { ready() {} }; }
-  el.style.animation = 'none'; // JS is alive and lifts it below: the CSS no-JS net must not hide it mid-build
-  let shown = false, ok = false, out = false;
-  const lift = () => { if (out || !shown || !ok) return; out = true; el.classList.add('out'); window.posthog?.capture('loader_lifted', { ms: Math.round(performance.now()) }); setTimeout(() => { root.classList.remove('ld'); el.remove(); }, 460); };
-  const played = () => { shown = true; lift(); };
-  $$('#ld-wm b').pop().addEventListener('animationend', played);
-  setTimeout(played, 1500); // animationend never fires in a hidden tab
-  setTimeout(() => { ok = true; played(); }, 8000); // the build failed somewhere: never trap the page behind the loader
-  addEventListener('keydown', () => { ok = true; played(); }, { once: true });
-  ['keydown', 'wheel', 'touchstart', 'pointerdown'].forEach(ev => addEventListener(ev, () => ok && played(), { passive: true }));
-  return { ready() { ok = true; lift(); } };
-})();
+PW.start();
 
 /* ═══════════════ HERO: edge-aware ASCII hands, shockwave intro, gap pulses ═══════════════ */
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]; // 4×4 ordered dither, the brand's halftone
@@ -315,7 +254,7 @@ const Hero = (() => {
     }
   }
   function build() {
-    W = hero.clientWidth; port = W < 768; navH = $('#nav').offsetHeight;
+    W = hero.clientWidth; port = W < 768; navH = ($('#mainNav') || {offsetHeight: 56}).offsetHeight;
     HS = Math.max(port ? 560 : 620, PW.scroll.vh);
     hero.style.height = HS + 'px';
     const d = PW.dpr(), cwd = Math.max(2, Math.round(2 * d)), chd = cwd; // square 2px cells: the brand's bitmap resolution
@@ -444,16 +383,17 @@ const Hero = (() => {
 
 
 window.addEventListener("DOMContentLoaded", () => {
-  const loadImg = (src) => new Promise((resolve) => {
+  const loadImg = (src) => new Promise((resolve, reject) => {
     const i = new Image();
     i.onload = () => resolve(i);
+    i.onerror = (e) => reject(e);
     i.src = src;
   });
 
   Promise.all([loadImg(SRC.HL), loadImg(SRC.HR), loadImg(SRC.ML), loadImg(SRC.MR)]).then(([hl, hr, ml, mr]) => {
     const fields = {
-      HL: PW.field(hl, true),
-      HR: PW.field(hr, true),
+      HL: PW.field(hl, false),
+      HR: PW.field(hr, false),
       ML: PW.field(ml, true),
       MR: PW.field(mr, true)
     };
@@ -463,5 +403,7 @@ window.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", () => {
       Hero.build();
     });
+  }).catch((err) => {
+    console.error("Hero hands image load error:", err);
   });
 });
