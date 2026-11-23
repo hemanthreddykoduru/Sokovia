@@ -291,192 +291,281 @@
       color: var(--bone72);
     }
 
-    /* ═══════════════ HERO SECTION (PARSEWAVE EXACT) ═══════════════ */
+    /* ═══════════════ HERO SECTION (CLEAN EDITORIAL SOKOVIA) ═══════════════ */
     .hero {
       position: relative;
       z-index: 2;
-      height: 900px;
-      overflow: hidden;
       background: var(--paper);
-      border-radius: 0 0 var(--r, 0px) var(--r, 0px);
-      touch-action: manipulation;
+      padding-top: calc(var(--nav) + 48px);
+      padding-bottom: 0;
+      border-bottom: 1px solid var(--line);
     }
-    #sokoviaCanvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      pointer-events: none;
-      z-index: 1;
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1.15fr;
+      column-gap: 56px;
+      align-items: center;
+      padding: 0 var(--m) 64px;
+      max-width: 1440px;
+      margin: 0 auto;
     }
-    #art_old {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      pointer-events: none;
-      z-index: 1;
-    }
-    .hgroup {
-      position: absolute;
+    .hero-left {
+      position: relative;
       z-index: 3;
-      top: calc(var(--nav) + 48px);
-      right: var(--m);
-      text-align: right;
     }
     .eyebrow {
       color: var(--ink72);
       font: 500 12px/1 var(--mono);
       letter-spacing: .08em;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 20px;
     }
     .eyebrow b {
-      font-weight: 500;
+      font-weight: 600;
       color: var(--olive);
     }
-    #h1 {
-      font-size: var(--t-display);
-      line-height: 1.02;
-      letter-spacing: -.035em;
+    .hero-title {
+      font-size: clamp(42px, 5vw, 68px);
+      line-height: 1.04;
+      letter-spacing: -.038em;
       font-weight: 700;
       color: var(--ink);
-    }
-    .hero .lead {
-      position: absolute;
-      z-index: 3;
-      left: var(--m);
-      right: var(--m);
-      bottom: 96px;
-      width: auto;
-      display: grid;
-      grid-template-columns: var(--lw, 560px) minmax(0, 1fr);
-      column-gap: var(--m);
-      pointer-events: none;
-    }
-    .hero .lead > * {
-      grid-column: 1;
-      pointer-events: auto;
-    }
-    .hero .lead > .hr-new {
-      grid-column: 2;
-      grid-row: 1 / span 2;
-      align-self: end;
-      justify-self: end;
-      width: 100%;
-      max-width: 320px;
-      margin: 0;
-    }
-    .lede {
-      font-size: var(--t-lede);
-      line-height: 1.5;
-      color: var(--ink72);
       margin-bottom: 24px;
+      text-wrap: balance;
     }
-    .lede strong {
+    .hero-lede {
+      font-size: var(--t-lede);
+      line-height: 1.55;
+      color: var(--ink72);
+      margin-bottom: 32px;
+      max-width: 540px;
+    }
+    .hero-lede strong {
       font-weight: 600;
       color: var(--ink);
     }
-    .ctas {
+    .hero-ctas {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
+      margin-bottom: 32px;
     }
-    .tag {
-      position: absolute;
-      z-index: 3;
-      left: 0;
-      top: 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font: 500 11px/1 var(--mono);
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--ink72);
-      white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity .4s;
-    }
-    .tag.on {
-      opacity: var(--to, 1);
-    }
-    .tag i {
-      display: block;
-      width: 8px;
-      height: 8px;
-      background: var(--ink);
-      transition: background .2s;
-    }
-    .tag.t-m i {
-      background: none;
-      box-shadow: inset 0 0 0 1px var(--ink72);
-    }
-    .tag.live i {
-      background: var(--lime);
-      box-shadow: inset 0 0 0 1px var(--ink);
-    }
-    .hr-new {
+    .hero-daemon-pill {
       border: 1px solid var(--line2);
-      padding: 16px 20px;
-      background: var(--paper);
+      background: #EAE8E2;
+      padding: 14px 18px;
+      max-width: 440px;
+      font: 400 13px/1.4 var(--mono);
+      color: var(--ink);
     }
-    .hr-top {
-      font: 500 11px/1 var(--mono);
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--ink72);
+    .daemon-head {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      margin-bottom: 6px;
     }
-    .hr-top i {
-      display: inline-block;
+    .dot-live {
       width: 7px;
       height: 7px;
+      border-radius: 50%;
       background: var(--lime);
-      border: 1px solid var(--ink);
+      box-shadow: 0 0 0 1.5px var(--ink);
     }
-    .hr-top .rule {
-      flex: 1;
-      height: 1px;
-      background: var(--line);
+    .mono-dim {
+      margin-left: auto;
+      color: var(--ink72);
     }
-    .hr-all {
-      color: var(--ink);
-      text-decoration: none;
-    }
-    .hr-all:hover {
-      text-decoration: underline;
-    }
-    .hr-p {
-      font-size: 13px;
-      line-height: 1.4;
-      margin: 0;
-    }
-    .hr-p a {
-      color: var(--ink);
-      text-decoration: none;
-    }
-    .hr-p mark {
-      background: var(--lime);
-      color: var(--ink);
-      padding: 1px 4px;
-      font-family: var(--mono);
+    .daemon-meta code {
+      background: rgba(17, 17, 17, 0.08);
+      padding: 2px 6px;
       font-weight: 600;
     }
+
+    /* ═══════════════ FINDER WINDOW MOCKUP ═══════════════ */
+    .hero-right {
+      position: relative;
+    }
+    .finder-window {
+      background: #FFFFFF;
+      border: 1px solid var(--line2);
+      border-radius: 12px;
+      box-shadow: 0 24px 64px -12px rgba(17, 17, 17, 0.14), 0 2px 8px rgba(17, 17, 17, 0.06);
+      overflow: hidden;
+      font-family: var(--sans);
+    }
+    .finder-titlebar {
+      height: 42px;
+      background: #F6F5F2;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      user-select: none;
+    }
+    .window-dots {
+      display: flex;
+      gap: 7px;
+      width: 60px;
+    }
+    .window-dots .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .window-dots .close { background: #FF5F56; border: 1px solid #E0443E; }
+    .window-dots .min { background: #FFBD2E; border: 1px solid #DEA123; }
+    .window-dots .max { background: #27C93F; border: 1px solid #1AAB29; }
+    .finder-title {
+      flex: 1;
+      text-align: center;
+      font: 600 13px/1 var(--sans);
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .finder-view-icons {
+      display: flex;
+      gap: 4px;
+      color: var(--ink72);
+      font-size: 13px;
+    }
+    .icon-toggle {
+      padding: 3px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .icon-toggle.active {
+      background: rgba(17, 17, 17, 0.08);
+      color: var(--ink);
+    }
+
+    .finder-body {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      min-height: 380px;
+      background: #FFFFFF;
+    }
+    .finder-sidebar {
+      background: #F9F8F5;
+      border-right: 1px solid var(--line);
+      padding: 14px 12px;
+      font-size: 13px;
+    }
+    .sidebar-section {
+      font: 600 11px/1 var(--mono);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--ink72);
+      margin-bottom: 8px;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      color: var(--ink);
+      margin-bottom: 2px;
+      font-size: 13px;
+    }
+    .sidebar-item.active {
+      background: #EAE8E1;
+      font-weight: 600;
+    }
+    .sidebar-item .eject-btn {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--ink72);
+    }
+
+    .finder-content {
+      display: flex;
+      flex-direction: column;
+      background: #FFFFFF;
+    }
+    .finder-status-strip {
+      padding: 10px 18px;
+      border-bottom: 1px solid rgba(17, 17, 17, 0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font: 500 12px/1 var(--mono);
+      color: var(--ink72);
+      background: #FAF9F6;
+    }
+    .badge-live {
+      color: var(--olive);
+      font-weight: 600;
+      letter-spacing: .02em;
+    }
+
+    .files-grid-mockup {
+      padding: 24px 20px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      flex: 1;
+    }
+    .mock-file {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #FCFCFA;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .mock-file:hover {
+      border-color: var(--ink);
+      box-shadow: 0 2px 8px rgba(17, 17, 17, 0.05);
+    }
+    .mock-icon-wrap {
+      width: 38px;
+      height: 44px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 700 11px/1 var(--mono);
+      flex-shrink: 0;
+    }
+    .mock-icon-wrap.pdf { background: #FFECEB; color: #D93829; border: 1px solid #FFD0CC; }
+    .mock-icon-wrap.mov { background: #EBF3FF; color: #1D68CD; border: 1px solid #CCE0FF; }
+    .mock-icon-wrap.code { background: #EFFFEB; color: #2E851A; border: 1px solid #D2F7C8; }
+    .mock-icon-wrap.folder { background: #FFF7EB; color: #B26A00; border: 1px solid #FFE4B8; font-size: 16px; }
+
+    .mock-name {
+      font: 600 13px/1.3 var(--sans);
+      color: var(--ink);
+      word-break: break-word;
+    }
+    .mock-size {
+      font: 400 11px/1.3 var(--mono);
+      color: var(--ink72);
+      margin-top: 2px;
+    }
+
+    .finder-footer {
+      padding: 10px 18px;
+      border-top: 1px solid var(--line);
+      background: #F6F5F2;
+      display: flex;
+      justify-content: space-between;
+      font: 500 11px/1 var(--mono);
+      color: var(--ink72);
+    }
+
+    /* Facts Bottom Row */
     .facts {
-      position: absolute;
+      position: relative;
       z-index: 4;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 56px;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       border-top: 1px solid var(--line);
@@ -489,7 +578,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 0 var(--m);
+      padding: 18px var(--m);
       font: 500 11px/1 var(--mono);
       letter-spacing: .08em;
       text-transform: uppercase;
@@ -497,27 +586,45 @@
     }
     .facts li + li {
       border-left: 1px solid var(--line);
-      padding-left: 24px;
     }
     .facts i {
       font-style: normal;
       color: var(--olive);
       font-weight: 700;
     }
+
     @media (max-width: 1024px) {
-      .hero { height: auto; min-height: 820px; }
-      .hgroup { right: var(--m); left: var(--m); text-align: left; }
-      #h1 { font-size: 52px; }
-      .hero .lead { position: relative; bottom: auto; margin-top: 420px; grid-template-columns: 1fr; row-gap: 24px; }
-      .hero .lead > .hr-new { grid-column: 1; grid-row: auto; max-width: 100%; justify-self: start; }
-      .facts { position: relative; height: auto; grid-template-columns: 1fr 1fr; }
-      .facts li { height: 48px; }
+      .hero-grid {
+        grid-template-columns: 1fr;
+        row-gap: 40px;
+      }
+      .facts {
+        grid-template-columns: 1fr 1fr;
+      }
+      .facts li:nth-child(3) {
+        border-left: none;
+      }
     }
-    @media (max-width: 768px) {
-      .hgroup { position: static; padding: 24px var(--m) 0; }
-      #h1 { font-size: 38px; }
-      .hero .lead { margin-top: 280px; }
-      .facts { grid-template-columns: 1fr; }
+    @media (max-width: 640px) {
+      .hero-grid {
+        padding: 0 20px 40px;
+      }
+      .finder-body {
+        grid-template-columns: 1fr;
+      }
+      .finder-sidebar {
+        display: none;
+      }
+      .files-grid-mockup {
+        grid-template-columns: 1fr;
+      }
+      .facts {
+        grid-template-columns: 1fr;
+      }
+      .facts li + li {
+        border-left: none;
+        border-top: 1px solid var(--line);
+      }
     }
     
 /* ═══════════════ DARK STAGE (PARSEWAVE "CALIBRATION" SECTION) ═══════════════ */
@@ -1056,54 +1163,133 @@
   <!-- ═══════════════ HERO SECTION ═══════════════ -->
     <!-- ═════════ HERO: Parsewave edge-aware ASCII hands + Sokovia copy ═════════ -->
     <!-- ═════════ HERO: SOKOVIA BESPOKE INDUSTRIAL ARCHITECTURE ═════════ -->
-  <section class="hero" id="top" aria-labelledby="h1">
-    <!-- Interactive Storage Halftone Radar Canvas -->
-    <canvas id="sokoviaCanvas" aria-hidden="true"></canvas>
-
-    <div class="hgroup">
-      <p class="eyebrow caps"><b aria-hidden="true">[</b> Virtual APFS Driver · Cloudflare R2 Backbone <b aria-hidden="true">]</b></p>
-      <h1 id="h1">Infinite storage,<br>mounted in Finder.</h1>
-    </div>
-
-    <div class="lead">
-      <p class="lede">
-        <strong>Decouple your MacBook from internal SSD limits.</strong> Sokovia mounts remote object buckets into native macOS Finder with on-demand chunk streaming, client-side AES-GCM encryption, and zero local footprint.
-      </p>
-      <div class="ctas">
-        <a class="btn" href="/downloads/Sokovia-macOS.dmg" download>
-          <span>Download for macOS</span> <span class="arr">↓</span>
-        </a>
-        <a class="btn ghost" href="#spec">
-          <span>Calculate pricing</span> <span class="arr">→</span>
-        </a>
-      </div>
-      <div class="hr-new">
-        <p class="hr-top caps">
-          <i aria-hidden="true"></i>
-          <span>Mount Target</span>
-          <span class="rule" aria-hidden="true"></span>
-          <span style="color:var(--olive);">Active</span>
+    <!-- ═════════ HERO: CLEAN INDUSTRIAL EDITORIAL SOKOVIA ═════════ -->
+  <section class="hero" id="top">
+    <div class="hero-grid">
+      <!-- Left Column: Copy & Actions -->
+      <div class="hero-left">
+        <p class="eyebrow caps">
+          <b>[</b> Virtual APFS Driver <b>·</b> Cloudflare R2 Backbone <b>]</b>
         </p>
-        <p class="hr-p">
-          Kernel APFS volume: <mark>/Volumes/Sokovia</mark> via WebDAV pipeline.
+        <h1 class="hero-title">
+          Infinite storage,<br>mounted in Finder.
+        </h1>
+        <p class="hero-lede">
+          <strong>Decouple your MacBook from internal SSD limits.</strong> Sokovia mounts high-capacity Cloudflare R2 buckets as an ejectable native APFS drive. Open multi-gigabyte ProRes, Xcode projects, and RAW photos on demand with zero local disk footprint.
         </p>
+        <div class="hero-ctas">
+          <a class="btn" href="/downloads/Sokovia-macOS.dmg" download>
+            <span>Download for macOS</span> <span class="arr">↓</span>
+          </a>
+          <a class="btn ghost" href="#spec">
+            <span>Calculate pricing</span> <span class="arr">→</span>
+          </a>
+        </div>
+
+        <div class="hero-daemon-pill">
+          <div class="daemon-head caps">
+            <span class="dot-live"></span>
+            <span>Local Daemon Active</span>
+            <span class="mono-dim">v1.3.0</span>
+          </div>
+          <div class="daemon-meta">
+            Attached at <code>/Volumes/Sokovia</code> via WebDAV APFS pipeline.
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: High-End macOS Finder Window Mockup -->
+      <div class="hero-right">
+        <div class="finder-window">
+          <div class="finder-titlebar">
+            <div class="window-dots">
+              <span class="dot close"></span>
+              <span class="dot min"></span>
+              <span class="dot max"></span>
+            </div>
+            <div class="finder-title">
+              <span class="folder-sym">☁️</span> Sokovia — 2.0 TB Virtual Volume
+            </div>
+            <div class="finder-view-icons">
+              <span class="icon-toggle active">⊞</span>
+              <span class="icon-toggle">≡</span>
+            </div>
+          </div>
+
+          <div class="finder-body">
+            <!-- Finder Sidebar -->
+            <div class="finder-sidebar">
+              <div class="sidebar-section">Favorites</div>
+              <div class="sidebar-item"><span>🏠</span> Home</div>
+              <div class="sidebar-item"><span>📁</span> Documents</div>
+              <div class="sidebar-item"><span>⬇️</span> Downloads</div>
+              <div class="sidebar-section" style="margin-top: 14px;">Locations</div>
+              <div class="sidebar-item active">
+                <span>💽</span>
+                <b>Sokovia</b>
+                <span class="eject-btn">⏏</span>
+              </div>
+              <div class="sidebar-item"><span>💻</span> MacBook Pro</div>
+            </div>
+
+            <!-- Finder File Grid -->
+            <div class="finder-content">
+              <div class="finder-status-strip">
+                <span>/Volumes/Sokovia</span>
+                <span class="badge-live">● Synced with R2</span>
+              </div>
+
+              <div class="files-grid-mockup">
+                <div class="mock-file">
+                  <div class="mock-icon-wrap pdf">
+                    <span class="mock-ext">PDF</span>
+                  </div>
+                  <div class="mock-name">CSEN4031_Syllabus.pdf</div>
+                  <div class="mock-size">242.9 KB · On Demand</div>
+                </div>
+
+                <div class="mock-file">
+                  <div class="mock-icon-wrap mov">
+                    <span class="mock-ext">MOV</span>
+                  </div>
+                  <div class="mock-name">A-Roll_4K_ProRes.mov</div>
+                  <div class="mock-size">48.2 GB · Streaming</div>
+                </div>
+
+                <div class="mock-file">
+                  <div class="mock-icon-wrap code">
+                    <span class="mock-ext">ZIP</span>
+                  </div>
+                  <div class="mock-name">Datasets_2026.tar.gz</div>
+                  <div class="mock-size">18.4 GB · Encrypted</div>
+                </div>
+
+                <div class="mock-file">
+                  <div class="mock-icon-wrap folder">
+                    <span class="mock-ext">📁</span>
+                  </div>
+                  <div class="mock-name">RAW_Archives</div>
+                  <div class="mock-size">142 items</div>
+                </div>
+              </div>
+
+              <!-- Finder Footer Bar -->
+              <div class="finder-footer">
+                <span>4 items, 1.95 TB available</span>
+                <span>Zero local bytes used</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Floating Technical Badges -->
-    <div class="tag t-h on" style="transform: translate(calc(58vw - 180px), 240px);">
-      <i></i><span>Virtual Inodes</span>
-    </div>
-    <div class="tag t-m on" style="transform: translate(calc(58vw + 100px), 480px);">
-      <i></i><span>R2 Zero Egress</span>
-    </div>
-
-    <!-- 4-Column Technical Metrics Strip -->
+    <!-- Technical Facts Bar -->
     <ul class="facts">
       <li><i>01</i>0 Bytes Local Footprint</li>
       <li><i>02</i>AES-GCM-256 Client-Side</li>
-      <li><i>03</i>Zero Egress Fees (R2)</li>
-      <li><i>04</i>Native macOS APFS Driver</li>
+      <li><i>03</i>Zero Egress Fees (Cloudflare R2)</li>
+      <li><i>04</i>Native APFS Volume</li>
     </ul>
   </section>
 
@@ -1464,7 +1650,7 @@
   <script src="/assets/ScrollTrigger.min.30821939.js"></script>
   <script src="/assets/lenis.min.67f0fe0c.js"></script>
   <!-- Parsewave edge-aware ASCII Hands engine -->
-  <script src="/sokovia_hero_engine.js"></script>
+  
 
   <script>
     // Dynamic header color invert on dark sections
