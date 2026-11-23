@@ -196,6 +196,7 @@ export async function initDashboard(): Promise<void> {
         if (bucketEl) bucketEl.textContent = maskBucketName(currentBucketName);
       }
     }
+    const cachedFiles = localStorage.getItem('sokovia_files_' + currentUserEmail);
     if (cachedFiles) {
       const parsed = JSON.parse(cachedFiles);
       if (parsed && parsed.files) {
@@ -1217,8 +1218,14 @@ if (typeof window !== 'undefined') {
   w.closeEnterRecoveryKeyModal = closeEnterRecoveryKeyModal;
   w.handleRecoveryKeySubmit = handleRecoveryKeySubmit;
 
-  window.addEventListener('DOMContentLoaded', () => {
+  const runInit = () => {
     initDashboard();
     renderPlanUI();
-  });
+  };
+
+  if (document.readyState === 'loading') {
+    window.addEventListener('DOMContentLoaded', runInit);
+  } else {
+    runInit();
+  }
 }
